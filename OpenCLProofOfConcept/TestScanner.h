@@ -74,9 +74,4 @@ private:
 
     void OnTimerTimeout();
 
-    void ConfigureOpenCLObjects()
-    {
-
-    }
-
 };

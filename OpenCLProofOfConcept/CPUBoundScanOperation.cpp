@@ -1,15 +1,15 @@
-#include "CPUBoundScanObject.h"
+#include "CPUBoundScanOperation.h"
 
-CPUBoundScanObject::CPUBoundScanObject(QString &filePath, QObject *parent) : QObject(parent), QRunnable(), m_filePath(filePath)
+CPUBoundScanOperation::CPUBoundScanOperation(QString &filePath, QObject *parent) : QObject(parent), QRunnable(), m_filePath(filePath)
 {
 }
 
-QByteArray CPUBoundScanObject::data()
+QByteArray CPUBoundScanOperation::data()
 {
     return m_data;
 }
 
-void CPUBoundScanObject::run()
+void CPUBoundScanOperation::run()
 {
     qDebug() << "Reading PE HEader from file on thread:" << QThread::currentThread();
 

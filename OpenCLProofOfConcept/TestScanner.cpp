@@ -4,7 +4,7 @@
 #include <memory>
 #include <qclcontext.h>
 #include "TestScanner.h"
-#include "CPUBoundScanObject.h"
+#include "CPUBoundScanOperation.h"
 
 
 TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(parent),
@@ -40,8 +40,8 @@ void TestScannerListModel::runScan()
     m_timer.start();
     for(auto file : m_filesToScan)
     {
-        CPUBoundScanObject *fileToScan = new CPUBoundScanObject(file.absoluteFilePath());
-        QObject::connect(fileToScan, &CPUBoundScanObject::processingComplete, this, &TestScannerListModel::OnCPUFilePopulated, Qt::QueuedConnection);
+        CPUBoundScanOperation *fileToScan = new CPUBoundScanOperation(file.absoluteFilePath());
+        QObject::connect(fileToScan, &CPUBoundScanOperation::processingComplete, this, &TestScannerListModel::OnCPUFilePopulated, Qt::QueuedConnection);
         QThreadPool::globalInstance()->start(fileToScan);
 
         //beginInsertRows(QModelIndex(), 0, 0);

@@ -3,13 +3,13 @@
 #include <QRunnable>
 #include <QtCore>
 
-class CPUBoundScanObject : public QObject, public QRunnable
+class CPUBoundScanOperation : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
 
-    CPUBoundScanObject(QString &filePath, QObject *parent = nullptr);
+    CPUBoundScanOperation(QString &filePath, QObject *parent = nullptr);
 
     QByteArray data();
 
