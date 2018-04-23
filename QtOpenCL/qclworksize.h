@@ -43,7 +43,7 @@
 #define QCLWORKSIZE_H
 
 #include "qclglobal.h"
-#include <QtCore/qsize.h>
+#include <qsize.h>
 
 QT_BEGIN_HEADER
 

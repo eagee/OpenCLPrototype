@@ -45,7 +45,7 @@
 #include "qclmemoryobject.h"
 #include "qclimageformat.h"
 #include "qclevent.h"
-#include <QtCore/qrect.h>
+#include <qrect.h>
 
 QT_BEGIN_HEADER
 

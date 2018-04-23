@@ -43,7 +43,7 @@
 #define QCLSAMPLER_H
 
 #include "qclglobal.h"
-#include <QtCore/qscopedpointer.h>
+#include <qscopedpointer.h>
 
 QT_BEGIN_HEADER
 

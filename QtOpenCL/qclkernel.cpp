@@ -44,8 +44,8 @@
 #include "qclbuffer.h"
 #include "qclcontext.h"
 #include "qclext_p.h"
-#include <QtCore/qvarlengtharray.h>
-#include <QtCore/qpoint.h>
+#include <qvarlengtharray.h>
+#include <qpoint.h>
 #include <QtGui/qvector2d.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qvector4d.h>

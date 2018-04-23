@@ -44,8 +44,8 @@
 
 #include "qcldevice.h"
 #include "qclkernel.h"
-#include <QtCore/qstring.h>
-#include <QtCore/qbytearray.h>
+#include <qstring.h>
+#include <qbytearray.h>
 
 QT_BEGIN_HEADER
 

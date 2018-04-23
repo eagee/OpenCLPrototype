@@ -7,6 +7,8 @@
 #include <QAbstractListModel>
 #include <QTimer>
 
+class QCLContext;
+
 class TestScannerListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -64,9 +66,17 @@ private:
     int m_secondsElapsed;
     QDateTime m_startTime;
     QTimer m_timer;
+    
+    // OpenCL specific objects
+    QScopedPointer<QCLContext> m_OpenClContext;
 
     QString getTimeElapsedString(int secondsElapsed);
 
     void OnTimerTimeout();
+
+    void ConfigureOpenCLObjects()
+    {
+
+    }
 
 };

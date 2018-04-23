@@ -5,9 +5,14 @@ CONFIG += c++11
 
 include(..\opencl_dep.pri)
 
+INCLUDEPATH += ..\QtOpenCL
+DEPENDPATH += ..\QtOpenCL
+
+
 SOURCES += main.cpp \
     TestScanner.cpp \
-    CPUBoundScanObject.cpp
+    CPUBoundScanObject.cpp \
+    DeviceBoundScanOperation.cpp
 
 RESOURCES += qml.qrc
 
@@ -19,7 +24,8 @@ include(deployment.pri)
 
 HEADERS += \
     TestScanner.h \
-    CPUBoundScanObject.h
+    CPUBoundScanObject.h \
+    DeviceBoundScanOperation.h
 
 #Compiler Flags
 # /GL Whole program optimization

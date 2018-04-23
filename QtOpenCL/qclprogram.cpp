@@ -41,8 +41,8 @@
 
 #include "qclprogram.h"
 #include "qclcontext.h"
-#include <QtCore/qdebug.h>
-#include <QtCore/qvarlengtharray.h>
+#include <qdebug.h>
+#include <qvarlengtharray.h>
 
 QT_BEGIN_NAMESPACE
 

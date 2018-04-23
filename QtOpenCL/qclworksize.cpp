@@ -41,8 +41,8 @@
 
 #include "qclworksize.h"
 #include "qcldevice.h"
-#include <QtCore/qdatastream.h>
-#include <QtCore/qdebug.h>
+#include <qdatastream.h>
+#include <qdebug.h>
 
 QT_BEGIN_NAMESPACE
 

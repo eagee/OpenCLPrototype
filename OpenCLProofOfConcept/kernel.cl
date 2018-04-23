@@ -1,8 +1,10 @@
-__kernel void vector_add(__global const int *A, __global const int *B, __global int *C) {
+__kernel void createChecksum(__global const unsigned char *fileData, __global size_t length, __global long *result) {
 
-    // Get the index of the current element to be processed
-    int i = get_global_id(0);
+    long checksum = 0;
+    for(int ix = 0; ix < length; ix++)
+    {
+        checksum += fileData[ix];
+    }
 
-    // Do the operation
-    C[i] = A[i] + B[i];
+    *result = checksum;
 }

@@ -47,7 +47,7 @@
 #ifdef QT_BUILD_INTERNAL
 #include <QtGui/private/qpixmap_raster_p.h>
 #endif
-#include <QtCore/qdebug.h>
+#include <qdebug.h>
 
 QT_BEGIN_NAMESPACE
 

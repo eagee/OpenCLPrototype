@@ -41,8 +41,8 @@
 
 #include "qcldevice.h"
 #include "qclext_p.h"
-#include <QtCore/qvarlengtharray.h>
-#include <QtCore/qdebug.h>
+#include <qvarlengtharray.h>
+#include <qdebug.h>
 
 QT_BEGIN_NAMESPACE
 

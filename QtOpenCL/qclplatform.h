@@ -43,9 +43,9 @@
 #define QCLPLATFORM_H
 
 #include "qclglobal.h"
-#include <QtCore/qlist.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qstringlist.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <qstringlist.h>
 
 QT_BEGIN_HEADER
 

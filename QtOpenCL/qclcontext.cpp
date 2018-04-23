@@ -41,9 +41,9 @@
 
 #include "qclcontext.h"
 #include "qclext_p.h"
-#include <QtCore/qdebug.h>
-#include <QtCore/qvarlengtharray.h>
-#include <QtCore/qfile.h>
+#include <qdebug.h>
+#include <qvarlengtharray.h>
+#include <qfile.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -115,7 +115,7 @@ bool QCLContext::isCreated() const
 
 extern "C" {
 
-static void qt_cl_context_notify(const char *errinfo,
+static void CL_CALLBACK qt_cl_context_notify(const char *errinfo,
                                  const void *private_info,
                                  size_t cb,
                                  void *user_data)

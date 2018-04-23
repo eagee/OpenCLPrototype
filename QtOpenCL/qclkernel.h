@@ -48,10 +48,10 @@
 #include "qclmemoryobject.h"
 #include "qclsampler.h"
 #include "qclvector.h"
-#include <QtCore/qstring.h>
-#include <QtCore/qscopedpointer.h>
-#include <QtCore/qtconcurrentrun.h>
-#include <QtCore/qpoint.h>
+#include <qstring.h>
+#include <qscopedpointer.h>
+#include <qtconcurrentrun.h>
+#include <qpoint.h>
 #include <QtGui/qvector2d.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qvector4d.h>

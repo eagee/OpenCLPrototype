@@ -2,8 +2,10 @@
 #include <QByteArray>
 #include <QDebug>
 #include <memory>
+#include <qclcontext.h>
 #include "TestScanner.h"
 #include "CPUBoundScanObject.h"
+
 
 TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(parent),
     m_secondsElapsed(0), m_currentScanObject(""), m_itemsScanned(0), m_startTime(QDateTime::currentDateTime())
@@ -22,6 +24,15 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
 
     m_timer.setInterval(1000);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
+    ConfigureOpenCLObjects();
+}
+
+void TestScannerListModel::ConfigureOpenCLObjects()
+{
+    m_OpenClContext.reset(new QCLContext());
+    if (!m_OpenClContext->create()) {
+        qCritical() << "Could not create OpenCL context for the GPU";
+    }
 }
 
 void TestScannerListModel::runScan()
@@ -123,8 +134,17 @@ void TestScannerListModel::OnTimerTimeout()
 
 void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
 {
-    qDebug() << "File: " << filePath << " Data Size: " << data.count();
+    // 64bit checksum for Test Trojan is: 2553
+    // qint64 checksum64 = 0;
+    // for (int ix = 0; ix < data.count(); ix++)
+    // {
+    //     checksum64 += data.at(ix);
+    // }
+    // qDebug() << "File: " << filePath << " Data Size: " << data.count() << " Checksum: " << checksum64;
+
+    m_currentScanObject = filePath;
     m_itemsScanned++;
     emit itemsScannedChanged();
     emit scanProgressChanged();
+    emit currentScanObjectChanged();
 }

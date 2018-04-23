@@ -40,7 +40,7 @@
 ****************************************************************************/
 
 #include "qclimageformat.h"
-#include <QtCore/qdebug.h>
+#include <qdebug.h>
 
 QT_BEGIN_NAMESPACE
 

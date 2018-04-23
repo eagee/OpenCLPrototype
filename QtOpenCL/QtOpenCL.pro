@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = QtOpenCL
 CONFIG += staticlib
 CONFIG += warn_on
+Qt += core
 
 include(..\opencl_dep.pri)
 

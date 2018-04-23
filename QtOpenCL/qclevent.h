@@ -43,8 +43,8 @@
 #define QCLEVENT_H
 
 #include "qclglobal.h"
-#include <QtCore/qvector.h>
-#include <QtCore/qfuture.h>
+#include <qvector.h>
+#include <qfuture.h>
 
 QT_BEGIN_HEADER
 

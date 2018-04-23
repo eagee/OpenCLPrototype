@@ -42,7 +42,7 @@
 #include "qcluserevent.h"
 #include "qclcontext.h"
 #include "qclext_p.h"
-#include <QtCore/qdebug.h>
+#include <qdebug.h>
 
 QT_BEGIN_NAMESPACE
 

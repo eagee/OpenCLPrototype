@@ -50,10 +50,10 @@
 #include "qclsampler.h"
 #include "qclprogram.h"
 #include "qcluserevent.h"
-#include <QtCore/qscopedpointer.h>
-#include <QtCore/qsize.h>
-#include <QtCore/qbytearray.h>
-#include <QtCore/qstring.h>
+#include <qscopedpointer.h>
+#include <qsize.h>
+#include <qbytearray.h>
+#include <qstring.h>
 
 QT_BEGIN_HEADER
 

@@ -43,8 +43,8 @@
 #define QCLVECTOR_H
 
 #include "qclbuffer.h"
-#include <QtCore/qscopedpointer.h>
-#include <QtCore/qvector.h>
+#include <qscopedpointer.h>
+#include <qvector.h>
 
 QT_BEGIN_HEADER
 

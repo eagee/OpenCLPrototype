@@ -42,10 +42,9 @@
 #ifndef QCLGLOBAL_H
 #define QCLGLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 // XXX: Move to qglobal.h eventually.
-QT_LICENSED_MODULE(CL)
 #if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
 #   if defined(QT_BUILD_CL_LIB)
 #       define Q_CL_EXPORT Q_DECL_EXPORT
@@ -63,7 +62,6 @@ QT_LICENSED_MODULE(CL)
 #   endif
 #endif
 
-QT_LICENSED_MODULE(CLGL)
 #if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
 #   if defined(QT_BUILD_CLGL_LIB)
 #       define Q_CLGL_EXPORT Q_DECL_EXPORT

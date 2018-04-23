@@ -41,7 +41,7 @@
 
 #include "qclcommandqueue.h"
 #include "qclcontext.h"
-#include <QtCore/qvarlengtharray.h>
+#include <qvarlengtharray.h>
 
 QT_BEGIN_NAMESPACE
 
