@@ -67,9 +67,6 @@ private:
     QDateTime m_startTime;
     QTimer m_timer;
     
-    // OpenCL specific objects
-    QScopedPointer<QCLContext> m_OpenClContext;
-
     QString getTimeElapsedString(int secondsElapsed);
 
     void OnTimerTimeout();

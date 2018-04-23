@@ -1,4 +1,4 @@
-#include "CPUBoundScanOperation.h"
+#include "CPUBoundScanOperations.h"
 
 CPUBoundScanOperation::CPUBoundScanOperation(QString &filePath, QObject *parent) : QObject(parent), QRunnable(), m_filePath(filePath)
 {

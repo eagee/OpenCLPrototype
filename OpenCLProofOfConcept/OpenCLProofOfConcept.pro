@@ -12,7 +12,7 @@ DEPENDPATH += ..\QtOpenCL
 SOURCES += main.cpp \
     TestScanner.cpp \
     DeviceBoundScanOperation.cpp \
-    CPUBoundScanOperation.cpp
+    CPUBoundScanOperations.cpp
 
 RESOURCES += qml.qrc
 
@@ -25,7 +25,7 @@ include(deployment.pri)
 HEADERS += \
     TestScanner.h \
     DeviceBoundScanOperation.h \
-    CPUBoundScanOperation.h
+    CPUBoundScanOperations.h
 
 #Compiler Flags
 # /GL Whole program optimization
