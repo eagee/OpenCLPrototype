@@ -27,12 +27,24 @@ HEADERS += \
     DeviceBoundScanOperation.h \
     CPUBoundScanOperations.h
 
+win32 {
+    !contains(QMAKE_TARGET.arch, x86_64) {
+        LIBS += -L../lib/Win32/Release -lQtOpenCL
+        PRE_TARGETDEPS += ../lib/Win32/Release/QtOpenCL.lib
+    } else {
+        LIBS += -L../lib/x64/Release/ -lQtOpenCL
+        PRE_TARGETDEPS += ../lib/x64/Release/QtOpenCL.lib
+    }
+}
+
+
 #Compiler Flags
 # /GL Whole program optimization
 # /Zc:strictStrings- MsHTML.h never heard about const correctness
 # /LTCG Link-Time Code Generation
 # /EHa Allows us to catch hardware exceptions (e.g. access violations) with C++ code
-QMAKE_CXXFLAGS_RELEASE += /GL -msse -msse2
+# -msse -msse2 <- TODO: Look up switches for these, see if we need them
+QMAKE_CXXFLAGS_RELEASE += /GL
 QMAKE_LFLAGS_RELEASE += /LTCG
 QMAKE_CXXFLAGS_EXCEPTIONS_ON = /EHa
 QMAKE_CXXFLAGS_STL_ON = /EHa

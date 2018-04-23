@@ -3,34 +3,24 @@
 #include <QRunnable>
 #include <QtCore>
 #include <QByteArray>
+#include <QVector>
+#include <qclcontext.h>
+#include <qclbuffer.h>
+#include <qclvector.h>
 
-class QCLContext;
-
-class DeviceBoundScanOperations : public QObject, public QRunnable
+class DeviceBoundScanOperation : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
 
-    DeviceBoundScanOperations(QObject *parent = nullptr) : QObject(parent), QRunnable(), m_maxOperations(100), m_totalOperations(0)
-    {
+    DeviceBoundScanOperation(QObject *parent = nullptr);
 
-    }
+    void queueOperation(QString filePath, QByteArray *data);
 
-    void queueOperation(QString filePath, QByteArray *data)
-    {
-        m_totalOperations++;
-    }
+    bool isFull();
 
-    bool isFull()
-    {
-        return (m_totalOperations == m_maxOperations)
-    }
-
-    void run()
-    {
-        // 64bit checksum for Test Trojan is: 2553
-    }
+    void run();
 
 signals:
 
@@ -39,9 +29,14 @@ signals:
 private:
     int m_totalOperations;
     int m_maxOperations;
-    QString m_filePath;
     QByteArray m_data;
     // OpenCL specific objects
     QCLContext m_OpenClContext;
+    QVector<QString> m_filePaths;
+    QByteArray m_localBuffer;
+    QCLBuffer m_clBuffer;
+    QCLVector<long> m_clStartingOffsets;
+    QCLVector<long> m_clLengths;
+    QCLVector<long> m_clChecksums;
 
 };

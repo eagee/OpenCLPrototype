@@ -54,12 +54,12 @@ DEFINES += CL_USE_DEPRECATED_OPENCL_1_1_APIS
 
 
 # Put EXEs and PDBs in a structured lib folder
-win32 {
-    !contains(QMAKE_TARGET.arch, x86_64) {
-        Release:DESTDIR = ../../lib/Win32/Release
-        Debug:DESTDIR = ../../lib/Win32/Debug
-    } else {
-        Release:DESTDIR = ../../lib/x64/Release
-        Debug:DESTDIR = ../../lib/x64/Debug
-    }
-}
+#win32 {
+#    !contains(QMAKE_TARGET.arch, x86_64) {
+#        Release:DESTDIR = ../lib/Win32/Release
+#        Debug:DESTDIR = ../lib/Win32/Debug
+#    } else {
+#        Release:DESTDIR = ../lib/x64/Release
+#        Debug:DESTDIR = ../lib/x64/Debug
+#    }
+#}

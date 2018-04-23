@@ -2,9 +2,9 @@
 #include <QByteArray>
 #include <QDebug>
 #include <memory>
-#include <qclcontext.h>
+#include "CPUBoundScanOperations.h"
+#include "DeviceBoundScanOperation.h"
 #include "TestScanner.h"
-#include "CPUBoundScanOperation.h"
 
 
 TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(parent),
@@ -24,15 +24,8 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
 
     m_timer.setInterval(1000);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
-    ConfigureOpenCLObjects();
-}
 
-void TestScannerListModel::ConfigureOpenCLObjects()
-{
-    m_OpenClContext.reset(new QCLContext());
-    if (!m_OpenClContext->create()) {
-        qCritical() << "Could not create OpenCL context for the GPU";
-    }
+    SetupNewGPUScanner();
 }
 
 void TestScannerListModel::runScan()
@@ -43,10 +36,6 @@ void TestScannerListModel::runScan()
         CPUBoundScanOperation *fileToScan = new CPUBoundScanOperation(file.absoluteFilePath());
         QObject::connect(fileToScan, &CPUBoundScanOperation::processingComplete, this, &TestScannerListModel::OnCPUFilePopulated, Qt::QueuedConnection);
         QThreadPool::globalInstance()->start(fileToScan);
-
-        //beginInsertRows(QModelIndex(), 0, 0);
-        //m_detections.push_back(file.absoluteFilePath());
-        //endInsertRows();
     }
 
     m_timer.stop();
@@ -132,6 +121,12 @@ void TestScannerListModel::OnTimerTimeout()
     emit timeElapsedChanged();
 }
 
+void TestScannerListModel::SetupNewGPUScanner()
+{
+    m_GPUScanner = new DeviceBoundScanOperation();
+    QObject::connect(m_GPUScanner, &DeviceBoundScanOperation::infectionFound, this, &TestScannerListModel::OnInfectionFound);
+}
+
 void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
 {
     // 64bit checksum for Test Trojan is: 2553
@@ -142,9 +137,22 @@ void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
     // }
     // qDebug() << "File: " << filePath << " Data Size: " << data.count() << " Checksum: " << checksum64;
 
+    m_GPUScanner->queueOperation(filePath, &data);
+    if(m_GPUScanner->isFull() || m_itemsScanned == m_filesToScan.count() - 1)
+    {
+        QThreadPool::globalInstance()->start(m_GPUScanner);
+    }
+
     m_currentScanObject = filePath;
     m_itemsScanned++;
     emit itemsScannedChanged();
     emit scanProgressChanged();
     emit currentScanObjectChanged();
+}
+
+void TestScannerListModel::OnInfectionFound(QString filePath)
+{
+    beginInsertRows(QModelIndex(), 0, 0);
+    m_detections.push_back(filePath);
+    endInsertRows();
 }

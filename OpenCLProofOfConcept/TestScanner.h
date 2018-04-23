@@ -6,8 +6,8 @@
 #include <QFileInfoList>
 #include <QAbstractListModel>
 #include <QTimer>
+#include "DeviceBoundScanOperation.h"
 
-class QCLContext;
 
 class TestScannerListModel : public QAbstractListModel
 {
@@ -56,9 +56,10 @@ signals:
 
 private slots:
     void OnCPUFilePopulated(QString filePath, QByteArray data);
+    void OnInfectionFound(QString filePath);
 
 private:
-
+    QPointer<DeviceBoundScanOperation> m_GPUScanner;
     QFileInfoList m_filesToScan;
     QList<QString> m_detections;
     QString m_currentScanObject;
@@ -70,5 +71,7 @@ private:
     QString getTimeElapsedString(int secondsElapsed);
 
     void OnTimerTimeout();
+
+    void SetupNewGPUScanner();
 
 };

@@ -2,6 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>MainForm.qml</file>
-        <file>kernel.cl</file>
+        <file>createChecksum.cl</file>
     </qresource>
 </RCC>
