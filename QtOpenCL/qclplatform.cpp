@@ -40,9 +40,9 @@
 ****************************************************************************/
 
 #include "qclplatform.h"
+#include "qclext_p.h"
 #include <QtCore/qvarlengtharray.h>
 #include <QtCore/qdebug.h>
-#include "qclext_p.h"
 
 QT_BEGIN_NAMESPACE
 

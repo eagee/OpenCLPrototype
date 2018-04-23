@@ -39,54 +39,49 @@
 **
 ****************************************************************************/
 
-#ifndef QCLGLOBAL_H
-#define QCLGLOBAL_H
+#ifndef QCLUSEREVENT_H
+#define QCLUSEREVENT_H
 
-#include <QtCore/qglobal.h>
+#include "qclevent.h"
 
-// XXX: Move to qglobal.h eventually.
-QT_LICENSED_MODULE(CL)
-#if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
-#   if defined(QT_BUILD_CL_LIB)
-#       define Q_CL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CL_EXPORT Q_DECL_IMPORT
-#   endif
-#elif defined(Q_OS_WIN) && defined(QT_DLL)
-#   define Q_CL_EXPORT Q_DECL_IMPORT
-#endif
-#if !defined(Q_CL_EXPORT)
-#   if defined(QT_SHARED)
-#       define Q_CL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CL_EXPORT
-#   endif
-#endif
+QT_BEGIN_HEADER
 
-QT_LICENSED_MODULE(CLGL)
-#if defined(Q_OS_WIN) && defined(QT_MAKEDLL)
-#   if defined(QT_BUILD_CLGL_LIB)
-#       define Q_CLGL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CLGL_EXPORT Q_DECL_IMPORT
-#   endif
-#elif defined(Q_OS_WIN) && defined(QT_DLL)
-#   define Q_CLGL_EXPORT Q_DECL_IMPORT
-#endif
-#if !defined(Q_CLGL_EXPORT)
-#   if defined(QT_SHARED)
-#       define Q_CLGL_EXPORT Q_DECL_EXPORT
-#   else
-#       define Q_CLGL_EXPORT
-#   endif
-#endif
+QT_BEGIN_NAMESPACE
 
-#if defined(__APPLE__) || defined(__MACOSX)
-#include <OpenCL/cl_platform.h>
-#include <OpenCL/cl.h>
-#else
-#include <CL/cl_platform.h>
-#include <CL/cl.h>
-#endif
+QT_MODULE(CL)
+
+class QCLContext;
+
+class Q_CL_EXPORT QCLUserEvent : public QCLEvent
+{
+public:
+    QCLUserEvent() : QCLEvent() {}
+    QCLUserEvent(cl_event id);
+    QCLUserEvent(const QCLEvent &other);
+
+    QCLUserEvent &operator=(const QCLEvent &other);
+
+    void setFinished();
+    void setStatus(cl_int status);
+
+private:
+    void validateEvent();
+
+    // Used by QCLContext::createUserEvent() to avoid
+    // the overhead of validateEvent().
+    QCLUserEvent(cl_event id, bool dummy)
+        : QCLEvent(id) { Q_UNUSED(dummy); }
+
+    friend class QCLContext;
+};
+
+inline void QCLUserEvent::setFinished()
+{
+    setStatus(CL_COMPLETE);
+}
+
+QT_END_NAMESPACE
+
+QT_END_HEADER
 
 #endif
