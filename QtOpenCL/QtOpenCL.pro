@@ -6,39 +6,39 @@ CONFIG += warn_on
 include(..\opencl_dep.pri)
 
 HEADERS += \
-#    qclbuffer.h \
-#    qclcommandqueue.h \
-#     qclcontext.h \
+     qclbuffer.h \
+     qclcommandqueue.h \
+     qclcontext.h \
      qcldevice.h \
-#    qclevent.h \
+     qclevent.h \
      qclglobal.h \
-#    qclimage.h \
-#    qclimageformat.h \
-#    qclkernel.h \
-#    qclmemoryobject.h \
+     qclimage.h \
+     qclimageformat.h \
+     qclkernel.h \
+     qclmemoryobject.h \
      qclplatform.h \
-#    qclprogram.h \
-#    qclsampler.h \
-#    qcluserevent.h \
-#    qclvector.h \
-#    qclworksize.h
+     qclprogram.h \
+     qclsampler.h \
+     qcluserevent.h \
+     qclvector.h \
+     qclworksize.h
 
 SOURCES += \
-#    qclbuffer.cpp \
-#    qclcommandqueue.cpp \
-#     qclcontext.cpp \
+     qclbuffer.cpp \
+     qclcommandqueue.cpp \
+      qclcontext.cpp \
      qcldevice.cpp \
-#    qclevent.cpp \
-#    qclimage.cpp \
-#    qclimageformat.cpp \
-#    qclkernel.cpp \
-#    qclmemoryobject.cpp \
+     qclevent.cpp \
+     qclimage.cpp \
+     qclimageformat.cpp \
+     qclkernel.cpp \
+     qclmemoryobject.cpp \
      qclplatform.cpp \
-#    qclprogram.cpp \
-#    qclsampler.cpp \
-#    qcluserevent.cpp \
-#    qclvector.cpp \
-#    qclworksize.cpp
+     qclprogram.cpp \
+     qclsampler.cpp \
+     qcluserevent.cpp \
+     qclvector.cpp \
+     qclworksize.cpp
 
 PRIVATE_HEADERS += \
     qclext_p.h
