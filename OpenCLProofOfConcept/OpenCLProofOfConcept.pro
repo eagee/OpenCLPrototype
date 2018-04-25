@@ -29,14 +29,17 @@ HEADERS += \
 
 win32 {
     !contains(QMAKE_TARGET.arch, x86_64) {
-        LIBS += -L../lib/Win32/Release -lQtOpenCL
-        PRE_TARGETDEPS += ../lib/Win32/Release/QtOpenCL.lib
+        Release: LIBS += -L../lib/Win32/Release -lQtOpenCL
+        Release: PRE_TARGETDEPS += ../lib/Win32/Release/QtOpenCL.lib
+        Debug: LIBS += -L../lib/Win32/Debug -lQtOpenCL
+        Debug: PRE_TARGETDEPS += ../lib/Win32/Debug/QtOpenCL.lib
     } else {
-        LIBS += -L../lib/x64/Release/ -lQtOpenCL
-        PRE_TARGETDEPS += ../lib/x64/Release/QtOpenCL.lib
+        Release: LIBS += -L../lib/x64/Release/ -lQtOpenCL
+        Release: PRE_TARGETDEPS += ../lib/x64/Release/QtOpenCL.lib
+        Debug: LIBS += -L../lib/x64/Debug/ -lQtOpenCL
+        Debug: PRE_TARGETDEPS += ../lib/x64/Debug/QtOpenCL.lib
     }
 }
-
 
 #Compiler Flags
 # /GL Whole program optimization

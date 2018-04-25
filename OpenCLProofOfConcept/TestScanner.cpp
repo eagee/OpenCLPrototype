@@ -140,7 +140,8 @@ void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
     m_GPUScanner->queueOperation(filePath, &data);
     if(m_GPUScanner->isFull() || m_itemsScanned == m_filesToScan.count() - 1)
     {
-        QThreadPool::globalInstance()->start(m_GPUScanner);
+        //QThreadPool::globalInstance()->start(m_GPUScanner);
+        m_GPUScanner->run();
     }
 
     m_currentScanObject = filePath;

@@ -22,6 +22,10 @@ public:
 
     void run();
 
+public slots:
+     
+    void evaluateChecksums();
+
 signals:
 
     void infectionFound(QString filePath);
@@ -38,5 +42,7 @@ private:
     QCLVector<long> m_clStartingOffsets;
     QCLVector<long> m_clLengths;
     QCLVector<long> m_clChecksums;
+    QCLProgram m_program;
+    QCLKernel m_kernel;
 
 };
