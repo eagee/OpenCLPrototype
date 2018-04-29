@@ -11,7 +11,7 @@ QByteArray CPUBoundScanOperation::data()
 
 void CPUBoundScanOperation::run()
 {
-    qDebug() << "Reading PE HEader from file on thread:" << QThread::currentThread();
+    qDebug() << "Reading Head from file on thread:" << QThread::currentThread();
 
     QFile file(m_filePath);
     if(!file.open(QIODevice::ReadOnly))

@@ -1,1 +1,3 @@
 *.log
+/OpenCLProofOfConcept.exp
+/OpenCLProofOfConcept.lib

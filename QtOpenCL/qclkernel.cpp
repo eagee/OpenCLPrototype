@@ -755,6 +755,11 @@ QCLEvent QCLKernel::run()
 {
     Q_D(const QCLKernel);
     cl_event event;
+
+    qDebug() << "Kernel Id: " << m_kernelId << " global work size: " << d->globalWorkSize.dimensions() 
+        << " local work size: " << d->globalWorkSize.sizes() << " num_events_in_wait_list: " 
+        << (d->localWorkSize.width() ? d->localWorkSize.sizes() : 0);
+
     cl_int error = clEnqueueNDRangeKernel
         (d->context->activeQueue(), m_kernelId, d->globalWorkSize.dimensions(),
          0, d->globalWorkSize.sizes(),

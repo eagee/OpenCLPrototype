@@ -8,41 +8,33 @@
 #include <qclbuffer.h>
 #include <qclvector.h>
 
+class OpenClProgram;
+
 class DeviceBoundScanOperation : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
 
-    DeviceBoundScanOperation(QObject *parent = nullptr);
+    DeviceBoundScanOperation(OpenClProgram &programToRun, QObject *parent = nullptr);
 
-    void queueOperation(QString filePath, QByteArray *data);
+    ~DeviceBoundScanOperation();
 
-    bool isFull();
+    bool queueOperation(QString filePath);
 
     void run();
-
-public slots:
-     
-    void evaluateChecksums();
 
 signals:
 
     void infectionFound(QString filePath);
 
 private:
-    int m_totalOperations;
-    int m_maxOperations;
-    QByteArray m_data;
-    // OpenCL specific objects
-    QCLContext m_OpenClContext;
-    QVector<QString> m_filePaths;
-    QByteArray m_localBuffer;
-    QCLBuffer m_clBuffer;
-    QCLVector<long> m_clStartingOffsets;
-    QCLVector<long> m_clLengths;
-    QCLVector<long> m_clChecksums;
-    QCLProgram m_program;
-    QCLKernel m_kernel;
+    QString m_fileToScan;
+    OpenClProgram &m_openClProgram;
+    cl_mem m_fileBuffer;
+    cl_mem m_fileSizeBuffer;
+    cl_mem m_outputBuffer;
+    bool m_buffersCreated;
 
+    bool createFileBuffers(QString scanFileName);
 };

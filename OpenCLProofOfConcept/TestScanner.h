@@ -58,6 +58,11 @@ private slots:
     void OnCPUFilePopulated(QString filePath, QByteArray data);
     void OnInfectionFound(QString filePath);
 
+    void RunGPUScan()
+    {
+
+    }
+
 private:
     QPointer<DeviceBoundScanOperation> m_GPUScanner;
     QFileInfoList m_filesToScan;

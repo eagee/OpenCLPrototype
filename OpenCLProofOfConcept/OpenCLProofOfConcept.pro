@@ -12,7 +12,8 @@ DEPENDPATH += ..\QtOpenCL
 SOURCES += main.cpp \
     TestScanner.cpp \
     DeviceBoundScanOperation.cpp \
-    CPUBoundScanOperations.cpp
+    CPUBoundScanOperations.cpp \
+    OpenClProgram.cpp
 
 RESOURCES += qml.qrc
 
@@ -25,7 +26,8 @@ include(deployment.pri)
 HEADERS += \
     TestScanner.h \
     DeviceBoundScanOperation.h \
-    CPUBoundScanOperations.h
+    CPUBoundScanOperations.h \
+    OpenClProgram.h
 
 win32 {
     !contains(QMAKE_TARGET.arch, x86_64) {

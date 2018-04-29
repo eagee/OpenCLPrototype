@@ -123,26 +123,27 @@ void TestScannerListModel::OnTimerTimeout()
 
 void TestScannerListModel::SetupNewGPUScanner()
 {
-    m_GPUScanner = new DeviceBoundScanOperation();
-    QObject::connect(m_GPUScanner, &DeviceBoundScanOperation::infectionFound, this, &TestScannerListModel::OnInfectionFound);
+    //m_GPUScanner = new DeviceBoundScanOperation();
+    //QObject::connect(m_GPUScanner, &DeviceBoundScanOperation::infectionFound, this, &TestScannerListModel::OnInfectionFound);
 }
 
 void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
 {
     // 64bit checksum for Test Trojan is: 2553
-    // qint64 checksum64 = 0;
-    // for (int ix = 0; ix < data.count(); ix++)
-    // {
-    //     checksum64 += data.at(ix);
-    // }
-    // qDebug() << "File: " << filePath << " Data Size: " << data.count() << " Checksum: " << checksum64;
-
-    m_GPUScanner->queueOperation(filePath, &data);
-    if(m_GPUScanner->isFull() || m_itemsScanned == m_filesToScan.count() - 1)
+    int checksum = 0;
+    for (int ix = 0; ix < data.count(); ix++)
     {
-        //QThreadPool::globalInstance()->start(m_GPUScanner);
-        m_GPUScanner->run();
+        checksum += data.at(ix);
     }
+    qDebug() << "File: " << filePath << " Data Size: " << data.count() << " Checksum: " << checksum;
+
+    // m_GPUScanner->queueOperation(filePath, &data);
+    // if(m_GPUScanner->isFull() || m_itemsScanned == m_filesToScan.count() - 1)
+    // {
+    //     //QThreadPool::globalInstance()->start(m_GPUScanner);
+    //     m_GPUScanner->run();
+    //     delete m_GPUScanner;
+    // }
 
     m_currentScanObject = filePath;
     m_itemsScanned++;
