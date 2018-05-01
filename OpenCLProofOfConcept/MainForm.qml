@@ -59,6 +59,17 @@ Rectangle {
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }
+            Text {
+                id: labelItemsScanned
+                x: 22
+                y: 247
+                width: 305
+                height: 14
+                text: qsTr("Items Scanned: ") + testScannerModel.itemsScanned
+                font.pixelSize: 12
+                Layout.fillWidth: true
+            }
+
 
             Text {
                 id: labelElapsedTime
@@ -70,6 +81,13 @@ Rectangle {
                 font.pixelSize: 12
                 horizontalAlignment: Qt.AlignRight
                 Layout.fillWidth: true
+                Connections
+                {
+                    target: testScannerModel
+                    onTimeElapsedChanged: {
+                        labelElapsedTime.text = testScannerModel.timeElapsed;
+                    }
+                }
             }
         }
 

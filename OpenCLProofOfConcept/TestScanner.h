@@ -6,7 +6,9 @@
 #include <QFileInfoList>
 #include <QAbstractListModel>
 #include <QTimer>
+#include "OpenClProgram.h"
 #include "DeviceBoundScanOperation.h"
+#include "QueueFilesOperation.h"
 
 
 class TestScannerListModel : public QAbstractListModel
@@ -54,29 +56,22 @@ signals:
     void timeElapsedChanged();
     void scanProgressChanged();
 
-private slots:
-    void OnCPUFilePopulated(QString filePath, QByteArray data);
+public slots:
+    void OnFileProcessingComplete(QString filePath, int checksum);
     void OnInfectionFound(QString filePath);
 
-    void RunGPUScan()
-    {
-
-    }
-
 private:
-    QPointer<DeviceBoundScanOperation> m_GPUScanner;
-    QFileInfoList m_filesToScan;
+
+    QPointer<DeviceBoundScanOperation> m_gpuScan;    
     QList<QString> m_detections;
     QString m_currentScanObject;
     int m_itemsScanned;
-    int m_secondsElapsed;
+    int m_totalItemsToScan;
+    qreal m_secondsElapsed;
     QDateTime m_startTime;
     QTimer m_timer;
-    
+
     QString getTimeElapsedString(int secondsElapsed);
 
     void OnTimerTimeout();
-
-    void SetupNewGPUScanner();
-
 };

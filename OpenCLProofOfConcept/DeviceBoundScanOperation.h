@@ -30,11 +30,10 @@ signals:
 
 private:
     QString m_fileToScan;
-    OpenClProgram &m_openClProgram;
     cl_mem m_fileBuffer;
     cl_mem m_fileSizeBuffer;
     cl_mem m_outputBuffer;
     bool m_buffersCreated;
-
+    OpenClProgram &m_openClProgram;
     bool createFileBuffers(QString scanFileName);
 };

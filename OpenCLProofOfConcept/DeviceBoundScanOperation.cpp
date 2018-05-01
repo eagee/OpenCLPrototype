@@ -10,6 +10,9 @@ DeviceBoundScanOperation::DeviceBoundScanOperation(OpenClProgram &programToRun, 
 
 DeviceBoundScanOperation::~DeviceBoundScanOperation()
 {
+    QMutex mutex;
+    QMutexLocker locker(&mutex);
+
     if(m_buffersCreated == true)
     {
         m_openClProgram.ReleaseBuffer(m_fileBuffer);
@@ -19,6 +22,7 @@ DeviceBoundScanOperation::~DeviceBoundScanOperation()
 }
 
 bool DeviceBoundScanOperation::queueOperation(QString filePath)
+
 {
     m_fileToScan = filePath;
     m_buffersCreated = createFileBuffers(filePath);
@@ -47,31 +51,32 @@ void DeviceBoundScanOperation::run()
 
     if(!m_openClProgram.SetKernelArg(1, sizeof(size_t), m_fileSizeBuffer))
     {
-        qDebug() << Q_FUNC_INFO << " Failed to set buffer arg for file.";
+        qDebug() << Q_FUNC_INFO << " Failed to set buffer size arg for file.";
         return;
     }
 
     if(!m_openClProgram.SetKernelArg(2, sizeof(int), m_outputBuffer))
     {
-        qDebug() << Q_FUNC_INFO << " Failed to set buffer arg for file.";
+        qDebug() << Q_FUNC_INFO << " Failed to set output buffer arg for file.";
         return;
     }
 
     const size_t workItemSize = 1;
     const size_t workGroupSize = 1;
     int result = m_openClProgram.ExecuteKernel(workItemSize, workGroupSize, m_outputBuffer);
-    if(result == 14330)
-    {
-        qDebug() << Q_FUNC_INFO << " Infection found in " << m_fileToScan;
-        emit infectionFound(m_fileToScan);
-    }
-    // TODO: Actually enqueue our GPU operation here
-    // Let the kernel block (though we'll have to run a non blocking operation one day)
-
+    qDebug() << "File: " << m_fileToScan << "Checksum: " << result;
+    //if(result == 14330)
+    //{
+    //    qDebug() << Q_FUNC_INFO << " Infection found in " << m_fileToScan;
+    //    emit infectionFound(m_fileToScan);
+    //}
 }
 
 bool DeviceBoundScanOperation::createFileBuffers(QString scanFileName)
 {
+    QMutex mutex;
+    QMutexLocker locker(&mutex);
+
     if(!QFile::exists(scanFileName))
     {
         qDebug() << Q_FUNC_INFO << " File: " << scanFileName << " not found.";
@@ -85,7 +90,7 @@ bool DeviceBoundScanOperation::createFileBuffers(QString scanFileName)
     }
 
     bool success = false;
-    QByteArray clFileBufferData = file.readAll();
+    QByteArray clFileBufferData = file.read(255);
     void *data = (void*)clFileBufferData.constData();
     success = m_openClProgram.CreateBuffer(m_fileBuffer, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, clFileBufferData.size(), data);
     if(!success)

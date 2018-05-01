@@ -3,6 +3,8 @@
 #include <QRunnable>
 #include <QtCore>
 
+class OpenClProgram;
+
 class CPUBoundScanOperation : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -11,13 +13,16 @@ public:
 
     CPUBoundScanOperation(QString &filePath, QObject *parent = nullptr);
 
-    QByteArray data();
-
     void run();
+
+    int RunCPUFileScan();
+
+    void RunGPUFileScan();
 
 signals:
 
-    void processingComplete(QString filePath, QByteArray data);
+    void processingComplete(QString filePath, int checksum);
+    void infectionFound(QString filePath);
 
 private:
     QString m_filePath;

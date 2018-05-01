@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     TestScanner.cpp \
     DeviceBoundScanOperation.cpp \
     CPUBoundScanOperations.cpp \
-    OpenClProgram.cpp
+    OpenClProgram.cpp \
+    QueueFilesOperation.cpp
 
 RESOURCES += qml.qrc
 
@@ -27,7 +28,8 @@ HEADERS += \
     TestScanner.h \
     DeviceBoundScanOperation.h \
     CPUBoundScanOperations.h \
-    OpenClProgram.h
+    OpenClProgram.h \
+    QueueFilesOperation.h
 
 win32 {
     !contains(QMAKE_TARGET.arch, x86_64) {

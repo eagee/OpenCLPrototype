@@ -5,19 +5,20 @@
 
      // As a test we're literally going to run the same checksum code on all 2000 threads.
      //long index = get_global_id(0);
-
     int checksum = 0;
-
+    
     if(fileLength > 255)
     {
-
+    
        for(int ix = 0; ix < 255; ix++)
        {
            checksum += fileData[ix];
        }
     }
 
+     // Let us calculate the checksum using the global id (which should be 0-254)
     *result = checksum;
+     //*result += fileData[get_global_id(0)];
     //if(checksum == 2553)
     //{
     //    *result = true;

@@ -5,52 +5,47 @@
 #include "CPUBoundScanOperations.h"
 #include "DeviceBoundScanOperation.h"
 #include "TestScanner.h"
+#include "QueueFilesOperation.h"
 
 
 TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(parent),
-    m_secondsElapsed(0), m_currentScanObject(""), m_itemsScanned(0), m_startTime(QDateTime::currentDateTime())
+    m_secondsElapsed(0), 
+    m_currentScanObject(""), 
+    m_itemsScanned(0),
+    m_totalItemsToScan(0),
+    m_startTime(QDateTime::currentDateTime())
 {
-    QDir testDir("C:\\TestFiles");
-    m_filesToScan = testDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst);
-    if(m_filesToScan.count() > 0)
-    {
-        m_currentScanObject = m_filesToScan.at(0).absoluteFilePath();
-        m_itemsScanned = 0;
-    }
+    m_currentScanObject = ""; // m_filesToScan.at(0).absoluteFilePath();
+    m_itemsScanned = 0;
 
     beginResetModel();
     m_detections.clear();
     endResetModel();
 
-    m_timer.setInterval(1000);
+    m_timer.setInterval(1);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
-
-    SetupNewGPUScanner();
 }
 
 void TestScannerListModel::runScan()
 {
+    m_itemsScanned = 0;
+    m_secondsElapsed = 0;
     m_timer.start();
-    for(auto file : m_filesToScan)
-    {
-        CPUBoundScanOperation *fileToScan = new CPUBoundScanOperation(file.absoluteFilePath());
-        QObject::connect(fileToScan, &CPUBoundScanOperation::processingComplete, this, &TestScannerListModel::OnCPUFilePopulated, Qt::QueuedConnection);
-        QThreadPool::globalInstance()->start(fileToScan);
-    }
-
-    m_timer.stop();
+    auto queueOperation = new QueueFilesOperation(nullptr, this);
+    m_totalItemsToScan = queueOperation->totalFilesToScan();
+    QThreadPool::globalInstance()->start(queueOperation);
 }
 
 int TestScannerListModel::totalItems()
 {
-    return m_filesToScan.count();
+    return m_totalItemsToScan;
 }
 
 qreal TestScannerListModel::scanProgress()
 {
     if(m_itemsScanned)
     {
-        qreal scanProgress = (qreal)m_itemsScanned / (qreal)m_filesToScan.count();
+        qreal scanProgress = (qreal)m_itemsScanned / (qreal)m_totalItemsToScan;
         return scanProgress;
     }
     else
@@ -105,7 +100,6 @@ QHash<int, QByteArray> TestScannerListModel::roleNames() const
     return{ { FilePath, "filepath" } };
 }
 
-
 QString TestScannerListModel::getTimeElapsedString(int secondsElapsed)
 {
     auto secs = secondsElapsed % 60;
@@ -117,39 +111,27 @@ QString TestScannerListModel::getTimeElapsedString(int secondsElapsed)
 
 void TestScannerListModel::OnTimerTimeout()
 {
-    ++m_secondsElapsed;
+    m_secondsElapsed += 0.01;
     emit timeElapsedChanged();
+    emit totalItemsChanged();
+    emit itemsScannedChanged();
+    emit currentScanObjectChanged();
+    emit scanProgressChanged();
 }
 
-void TestScannerListModel::SetupNewGPUScanner()
+void TestScannerListModel::OnFileProcessingComplete(QString filePath, int checksum)
 {
-    //m_GPUScanner = new DeviceBoundScanOperation();
-    //QObject::connect(m_GPUScanner, &DeviceBoundScanOperation::infectionFound, this, &TestScannerListModel::OnInfectionFound);
-}
-
-void TestScannerListModel::OnCPUFilePopulated(QString filePath, QByteArray data)
-{
-    // 64bit checksum for Test Trojan is: 2553
-    int checksum = 0;
-    for (int ix = 0; ix < data.count(); ix++)
-    {
-        checksum += data.at(ix);
-    }
-    qDebug() << "File: " << filePath << " Data Size: " << data.count() << " Checksum: " << checksum;
-
-    // m_GPUScanner->queueOperation(filePath, &data);
-    // if(m_GPUScanner->isFull() || m_itemsScanned == m_filesToScan.count() - 1)
-    // {
-    //     //QThreadPool::globalInstance()->start(m_GPUScanner);
-    //     m_GPUScanner->run();
-    //     delete m_GPUScanner;
-    // }
-
     m_currentScanObject = filePath;
     m_itemsScanned++;
-    emit itemsScannedChanged();
-    emit scanProgressChanged();
-    emit currentScanObjectChanged();
+    if(m_itemsScanned == m_totalItemsToScan)
+    {
+        m_timer.stop();
+        emit timeElapsedChanged();
+        emit totalItemsChanged();
+        emit itemsScannedChanged();
+        emit currentScanObjectChanged();
+        emit scanProgressChanged();
+    }
 }
 
 void TestScannerListModel::OnInfectionFound(QString filePath)
