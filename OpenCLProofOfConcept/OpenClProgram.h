@@ -38,19 +38,25 @@ public:
 
     ~OpenClProgram();
 
-    bool SetKernelArg(cl_uint argumentIndex, size_t argumentSize, cl_mem &argumentValue);
+    Q_INVOKABLE bool SetKernelArg(cl_uint argumentIndex, size_t argumentSize, cl_mem &argumentValue);
 
-    bool CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size, void *hostPointer);
+    Q_INVOKABLE bool CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size, void *hostPointer);
 
-    void ReleaseBuffer(cl_mem buffer);
+    Q_INVOKABLE bool WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback);
 
-    int ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_mem &outputBuffer);
+    Q_INVOKABLE bool ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback);
 
-    QString programFileName() const;
+    Q_INVOKABLE void ReleaseBuffer(cl_mem &buffer);
+
+    Q_INVOKABLE int ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback);
+
+    Q_INVOKABLE QString programFileName() const;
     
-    DeviceType::enum_type deviceType() const;
-    ErrorState::enum_type errorState() const;
+    Q_INVOKABLE DeviceType::enum_type deviceType() const;
 
+    Q_INVOKABLE ErrorState::enum_type errorState() const;
+
+    static QString errorName(cl_int code);
 
 private:
     QString m_programFileName;
@@ -64,6 +70,9 @@ private:
     cl_kernel m_kernel;
     int m_workItemsToExecute;
     int m_computeGroupSize;
+    cl_uint m_addressBits;
+    cl_uint m_computeUnits;
+    size_t m_maxComputeGroupSize;
 
     // Populate our DeviceID via OpenCL API
     ErrorState::enum_type populateDeviceID();
@@ -77,8 +86,6 @@ private:
     ErrorState::enum_type createCommandQueue();
 
     ErrorState::enum_type createKernel();
-
-    QString errorName(cl_int code);
 
 };
 

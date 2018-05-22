@@ -2,40 +2,20 @@
 
  __kernel void createChecksum(__global __read_only unsigned char *fileData, __global __read_only size_t *fileLength, __global int *result)
  {
+     int checksum = 0;
 
-     // As a test we're literally going to run the same checksum code on all 2000 threads.
-     //long index = get_global_id(0);
-    int checksum = 0;
+    // printf("local_id = %ul global_id = %ul\n", get_local_id(0), get_global_id(0));
+
+    // Get the array offset we're going to need to calculate our checksum against fileData
+    // (which comprises consecutive chunks of data of *fileLength in size)
+    int globalOffset = (get_global_id(0) * fileLength[0]);
     
-    if(fileLength > 255)
+    // Calculate an integer checksum for the chunk of data specified by the global work item id
+    for (long ix = globalOffset; ix < globalOffset + fileLength[0]; ix++)
     {
-    
-       for(int ix = 0; ix < 255; ix++)
-       {
-           checksum += fileData[ix];
-       }
+        checksum += fileData[ix];
     }
 
-     // Let us calculate the checksum using the global id (which should be 0-254)
-    *result = checksum;
-     //*result += fileData[get_global_id(0)];
-    //if(checksum == 2553)
-    //{
-    //    *result = true;
-    //}
-    //else
-    //{
-    //    *result = false;
-    //}
+     // Assign the reuslts to our checksum output array :)
+    result[get_global_id(0)] = checksum;
  }
-
-//! [1]
-//! [1]
-// __kernel void vectorAdd(__global __read_only int *input1,
-//     __global __read_only int *input2,
-//     __global __write_only int *output)
-// {
-//     unsigned int index = get_global_id(0);
-//     output[index] = input1[index] + input2[index];
-// }
-//! [1]

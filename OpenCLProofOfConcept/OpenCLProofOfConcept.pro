@@ -11,10 +11,11 @@ DEPENDPATH += ..\QtOpenCL
 
 SOURCES += main.cpp \
     TestScanner.cpp \
-    DeviceBoundScanOperation.cpp \
     CPUBoundScanOperations.cpp \
     OpenClProgram.cpp \
-    QueueFilesOperation.cpp
+    ScanWorkerState.cpp \
+    ScanWorkManager.cpp \
+    GPUScanWorker.cpp
 
 RESOURCES += qml.qrc
 
@@ -26,10 +27,12 @@ include(deployment.pri)
 
 HEADERS += \
     TestScanner.h \
-    DeviceBoundScanOperation.h \
     CPUBoundScanOperations.h \
     OpenClProgram.h \
-    QueueFilesOperation.h
+    ScanWorkerState.h \
+    ScanWorkManager.h \
+    IScanWorker.h \
+    GPUScanWorker.h
 
 win32 {
     !contains(QMAKE_TARGET.arch, x86_64) {

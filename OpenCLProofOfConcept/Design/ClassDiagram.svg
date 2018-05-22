@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg height="842" version="1.1" width="1603" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#ffffff" height="75" stroke="#ffffff" stroke-width="1" width="192" x="70" y="294"/>
+<rect fill="none" height="75" stroke="#000000" stroke-width="1" width="192" x="70" y="294"/>
+<text font-family="Dialog" font-size="12" x="87" y="308">
+ScanWorkManager: QThread</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="192" x="70" y="318"/>
+<text font-family="Dialog" font-size="12" x="74" y="333">
+m_filesToScan : QList&lt;QfileInfo&gt;</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="192" x="70" y="343"/>
+<text font-family="Dialog" font-size="12" x="74" y="358">
+m_FilesToScan()</text>
+<rect fill="#ffffff" height="177" stroke="#ffffff" stroke-width="1" width="543" x="550" y="462"/>
+<rect fill="none" height="177" stroke="#000000" stroke-width="1" width="543" x="550" y="462"/>
+<text font-family="Dialog" font-size="12" x="762" y="476">
+GPUWorker: QThread</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="543" x="550" y="486"/>
+<text font-family="Dialog" font-size="12" x="554" y="501">
+m_fileDataBuffer : cl_mem</text>
+<text font-family="Dialog" font-size="12" x="554" y="518">
+m_fileOffsetBuffer : cl_mem</text>
+<text font-family="Dialog" font-size="12" x="554" y="535">
+m_outputBuffer : cl_mem</text>
+<text font-family="Dialog" font-size="12" x="554" y="552">
+m_maxFiles : Integer</text>
+<text font-family="Dialog" font-size="12" x="554" y="569">
+m_bytesPerFile : Integer</text>
+<text font-family="Dialog" font-size="12" x="554" y="586">
+m_scanDoneEvent : cl_event</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="543" x="550" y="596"/>
+<text font-family="Dialog" font-size="12" x="554" y="611">
+void CL_CALLBACK EventCallback(event : cl_event,event_exec_status : cl_int,pUserData : void*)</text>
+<text font-family="Dialog" font-size="12" x="554" y="628">
+processKernelOutput()</text>
+<rect fill="#ffffff" height="189" stroke="#ffffff" stroke-width="1" width="285" x="502" y="214"/>
+<rect fill="none" height="189" stroke="#000000" stroke-width="1" width="285" x="502" y="214"/>
+<text font-family="Dialog" font-size="12" x="609" y="248">
+IScanWorker</text>
+<text font-family="Dialog" font-size="12" x="607" y="229">
+&lt;&lt;interface&gt;&gt;</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="285" x="502" y="258"/>
+<text font-family="Dialog" font-size="12" x="506" y="273">
+queueFileData(fileToScan)</text>
+<text font-family="Dialog" font-size="12" x="506" y="290">
+executeScan()</text>
+<text font-family="Dialog" font-size="12" x="506" y="307">
+&lt;&lt;signal&gt;&gt; stateChanged()</text>
+<text font-family="Dialog" font-size="12" x="506" y="324">
+&lt;&lt;signal&gt;&gt; infectionFound(file)</text>
+<text font-family="Dialog" font-size="12" x="506" y="341">
+state() : ScanWorkerState</text>
+<text font-family="Dialog" font-size="12" x="506" y="358">
+createFileBuffers(bytesPerFile,maxFiles) : Boolean</text>
+<text font-family="Dialog" font-size="12" x="506" y="375">
+queuedFileCount() : Integer</text>
+<text font-family="Dialog" font-size="12" x="506" y="392">
+clearFileBuffers()</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="462" y2="457"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="452" y2="447"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="442" y2="437"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="432" y2="427"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="422" y2="417"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="646" x2="646" y1="412" y2="407"/>
+<polygon fill="#ffffff" points="646,402 653,414 639,414" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="646,402 653,414 639,414" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="567" y="447">
+&lt;&lt;realize&gt;&gt;</text>
+<polyline fill="none" points="261,334 502,334" stroke="#000000" stroke-width="1"/>
+<polygon fill="#000000" points="261,334 271,329 281,334 271,339" stroke="#000000" stroke-width="1"/>
+<polygon fill="none" points="261,334 271,329 281,334 271,339" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="326" y="317">
+m_scanWorkerPool</text>
+<rect fill="#ffffff" height="176" stroke="#ffffff" stroke-width="1" width="232" x="534" y="14"/>
+<rect fill="none" height="176" stroke="#000000" stroke-width="1" width="232" x="534" y="14"/>
+<text font-family="Dialog" font-size="12" x="602" y="48">
+ScanWorkerState</text>
+<text font-family="Dialog" font-size="12" x="601" y="29">
+&lt;&lt;enumeration&gt;&gt;</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="232" x="534" y="58"/>
+<text font-family="Dialog" font-size="12" x="538" y="73">
+Available</text>
+<text font-family="Dialog" font-size="12" x="538" y="90">
+Busy</text>
+<text font-family="Dialog" font-size="12" x="538" y="107">
+ReadyForScan</text>
+<text font-family="Dialog" font-size="12" x="538" y="124">
+Scanning</text>
+<text font-family="Dialog" font-size="12" x="538" y="141">
+Commplete</text>
+<text font-family="Dialog" font-size="12" x="538" y="158">
+Error</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="232" x="534" y="168"/>
+<polygon fill="#ffffff" points="190,758 633,758 643,768 643,827 190,827 190,758" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="190,758 633,758 643,768 643,827 190,827 190,758" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="633,758 643,768 633,768 633,758" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="633,758 643,768 633,768 633,758" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="193" y="774">
+queueFileData - Acting as part of a pool of OpenCL worker objects, when</text>
+<text font-family="Dialog" font-size="12" x="193" y="790">
+queueFileData is called state will be changed to busy. Using the CPU this object</text>
+<text font-family="Dialog" font-size="12" x="193" y="806">
+will populate a cl_mem buffer with the target bytes form the specified file.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="758" y2="753"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="748" y2="743"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="738" y2="733"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="728" y2="723"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="718" y2="713"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="708" y2="703"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="698" y2="693"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="688" y2="683"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="678" y2="673"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="668" y2="663"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="658" y2="653"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="634" x2="634" y1="648" y2="643"/>
+<polygon fill="#ffffff" points="38,654 630,654 640,664 640,741 38,741 38,654" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="38,654 630,654 640,664 640,741 38,741 38,654" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="630,654 640,664 630,664 630,654" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="630,654 640,664 630,664 630,654" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="41" y="670">
+ExecuteScan - Acting as a part of a pool, when this object contains as much work as</text>
+<text font-family="Dialog" font-size="12" x="41" y="686">
+it can process (or when there is no more work to process) ExecuteScan will change the state</text>
+<text font-family="Dialog" font-size="12" x="41" y="702">
+of this object to busy, and perform a blocking operation on the GPU using it's own command_queue. When</text>
+<text font-family="Dialog" font-size="12" x="41" y="718">
+the operation is complete this thread will iterate through the results, and notify the ScanWorkManager of any </text>
+<text font-family="Dialog" font-size="12" x="41" y="734">
+infections found.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="597" x2="597" y1="654" y2="649"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="597" x2="597" y1="644" y2="639"/>
+<polygon fill="#ffffff" points="14,470 471,470 481,480 481,619 14,619 14,470" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="14,470 471,470 481,480 481,619 14,619 14,470" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="471,470 481,480 471,480 471,470" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="471,470 481,480 471,480 471,470" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="17" y="486">
+Keeps a list of IScanWorker implementations (either GPU or CPU) and</text>
+<text font-family="Dialog" font-size="12" x="17" y="502">
+queues work for each item in the pool. As each item becomes available</text>
+<text font-family="Dialog" font-size="12" x="17" y="518">
+after performing it's own queue operation the work manager checks to </text>
+<text font-family="Dialog" font-size="12" x="17" y="534">
+see if the state is ReadyToScan, if it is it will call executeScan(), otherwise it will</text>
+<text font-family="Dialog" font-size="12" x="17" y="550">
+queue more file data to scan. </text>
+<text font-family="Dialog" font-size="12" x="17" y="582">
+When no files are left to scan, this object will trigger executeScan() for all remaining</text>
+<text font-family="Dialog" font-size="12" x="17" y="598">
+work items.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="470" y2="465"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="460" y2="455"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="450" y2="445"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="440" y2="435"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="430" y2="425"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="420" y2="415"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="410" y2="405"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="400" y2="395"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="390" y2="385"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="380" y2="375"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="142" x2="142" y1="370" y2="368"/>
+<rect fill="#ffffff" height="68" stroke="#ffffff" stroke-width="1" width="100" x="1246" y="510"/>
+<rect fill="none" height="68" stroke="#000000" stroke-width="1" width="100" x="1246" y="510"/>
+<text font-family="Dialog" font-size="12" x="1251" y="524">
+OpenClProgram</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="100" x="1246" y="534"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="100" x="1246" y="555"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1092" x2="1097" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1102" x2="1107" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1112" x2="1117" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1122" x2="1127" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1132" x2="1137" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1142" x2="1147" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1152" x2="1157" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1162" x2="1167" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1172" x2="1177" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1182" x2="1187" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1192" x2="1197" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1202" x2="1207" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1212" x2="1217" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1222" x2="1227" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1232" x2="1237" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1242" x2="1246" y1="545" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1234" x2="1246" y1="552" y2="545"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1234" x2="1246" y1="538" y2="545"/>
+<text font-family="Dialog" font-size="12" x="1116" y="515">
+m_openClProgram</text>
+<text font-family="Dialog" font-size="12" x="1131" y="533">
+&lt;&lt;static&gt;&gt;</text>
+<polygon fill="#ffffff" points="1134,446 1501,446 1511,456 1511,485 1134,485 1134,446" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1134,446 1501,446 1511,456 1511,485 1134,485 1134,446" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="1501,446 1511,456 1501,456 1501,446" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1501,446 1511,456 1501,456 1501,446" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="1137" y="462">
+ExecuteKernel needs a cl_event param so the GPUWorker can get</text>
+<text font-family="Dialog" font-size="12" x="1137" y="478">
+an event when it's job in the queue is done.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1310" x2="1310" y1="486" y2="491"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1310" x2="1310" y1="496" y2="501"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1310" x2="1310" y1="506" y2="510"/>
+<polygon fill="#ffffff" points="902,358 1318,358 1328,368 1328,416 902,416 902,358" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="902,358 1318,358 1328,368 1328,416 902,416 902,358" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="1318,358 1328,368 1318,368 1318,358" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1318,358 1328,368 1318,368 1318,358" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="905" y="374">
+Calls to ExecuteKernel and SetKernelArg *must* have a mutext before them</text>
+<text font-family="Dialog" font-size="12" x="905" y="390">
+and be called in series. All other OpenCL calls will be thread safe.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="902" x2="902" y1="417" y2="422"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="902" x2="902" y1="427" y2="432"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="902" x2="902" y1="437" y2="442"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="902" x2="902" y1="447" y2="452"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="902" x2="902" y1="457" y2="462"/>
+<polygon fill="#ffffff" points="1134,630 1578,630 1588,640 1588,688 1134,688 1134,630" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1134,630 1578,630 1588,640 1588,688 1134,688 1134,630" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="1578,630 1588,640 1578,640 1578,630" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1578,630 1588,640 1578,640 1578,630" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="1137" y="646">
+We call clSetEventCallback to set up EventCallback on ctor; as the event callback</text>
+<text font-family="Dialog" font-size="12" x="1137" y="662">
+is fired we'll update the state of the GPUWorkerObject</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1134" x2="1129" y1="638" y2="638"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1124" x2="1119" y1="638" y2="638"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1114" x2="1109" y1="638" y2="638"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1104" x2="1099" y1="638" y2="638"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="1094" x2="1092" y1="638" y2="638"/>
+<polygon fill="#ffffff" points="750,726 1173,726 1183,736 1183,789 750,789 750,726" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="750,726 1173,726 1183,736 1183,789 750,789 750,726" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="1173,726 1183,736 1173,736 1173,726" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="1173,726 1183,736 1173,736 1173,726" stroke="#000000" stroke-width="1"/>
+<text font-family="Dialog" font-size="12" x="753" y="742">
+processKernelOutput (after we receive our final EventCallack) performs</text>
+<text font-family="Dialog" font-size="12" x="753" y="758">
+a read operation on the output memory, and then looks to see if an index has</text>
+<text font-family="Dialog" font-size="12" x="753" y="774">
+been marked with a flag to indciate an infection id.</text>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="726" y2="721"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="716" y2="711"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="706" y2="701"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="696" y2="691"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="686" y2="681"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="676" y2="671"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="666" y2="661"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="656" y2="651"/>
+<line fill="#000000" stroke="#000000" stroke-width="1" x1="886" x2="886" y1="646" y2="641"/>
+</svg>

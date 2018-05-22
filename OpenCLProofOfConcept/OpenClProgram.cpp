@@ -69,29 +69,48 @@ bool OpenClProgram::CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size
     return true;
 }
 
-void OpenClProgram::ReleaseBuffer(cl_mem buffer)
-{
-    clReleaseMemObject(buffer);
-}
-
-int OpenClProgram::ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_mem &outputBuffer)
+bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback)
 {
     int errorCode = 0;
-    errorCode = clEnqueueNDRangeKernel(m_commandQueue, m_kernel, 1, NULL, &workItemCount, &computeGroupSize, 0, NULL, NULL);
-    if (errorCode < 0) {
-        qDebug() << Q_FUNC_INFO << " Failed to enqueue kernel with error code: " << errorName(errorCode);
+    // Perform a non-blocking write operation that will trigger eventCallback when it's complete
+    errorCode = clEnqueueWriteBuffer(m_commandQueue, buffer, CL_TRUE, offset, sizeInBytes, data, NULL, nullptr, eventCallback);
+    if (errorCode < CL_SUCCESS)
+    {
+        qDebug() << Q_FUNC_INFO << " Failed to write cl_mem file buffer with error code: " << errorName(errorCode);
         return false;
     }
+    return true;
+}
 
-    /* Read the kernel's output */
-    int result;
-    errorCode = clEnqueueReadBuffer(m_commandQueue, outputBuffer, CL_TRUE, 0, sizeof(int), &result, 0, NULL, NULL);
+Q_INVOKABLE bool OpenClProgram::ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback)
+{
+    Q_UNUSED(eventCallback);
+    Q_UNUSED(offset);
+
+    cl_int errorCode = clEnqueueReadBuffer(m_commandQueue, buffer, CL_TRUE, 0, sizeInBytes, data, 0, NULL, NULL);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to read output buffer with error code: " << errorName(errorCode);
         return false;
     }
 
-    return result;
+    return true;
+}
+
+void OpenClProgram::ReleaseBuffer(cl_mem &buffer)
+{
+    clReleaseMemObject(buffer);
+}
+
+int OpenClProgram::ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback)
+{
+    int errorCode = 0;
+    errorCode = clEnqueueNDRangeKernel(m_commandQueue, m_kernel, 1, NULL, &workItemCount, &computeGroupSize, 0, NULL, eventCallback);
+    if (errorCode < 0) {
+        qDebug() << Q_FUNC_INFO << " Failed to enqueue kernel with error code: " << errorName(errorCode);
+        return false;
+    }
+
+    return errorCode;
 }
 
 QString OpenClProgram::programFileName() const
@@ -133,6 +152,11 @@ OpenClProgram::ErrorState::enum_type OpenClProgram::populateDeviceID()
             qDebug() << Q_FUNC_INFO << "GPU Device ID Unavailable, attempting to obtain CPU device id";
             errorCode = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &m_deviceID, NULL);
         }
+
+        // TODO: Get some essential stats we need to know about the device and use this in our calculations
+        clGetDeviceInfo(m_deviceID, CL_DEVICE_ADDRESS_BITS, sizeof(m_addressBits), &m_addressBits, NULL);
+        clGetDeviceInfo(m_deviceID, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(m_computeUnits), &m_computeUnits, NULL);
+        clGetDeviceInfo(m_deviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(m_maxComputeGroupSize), &m_maxComputeGroupSize, NULL);
     }
     else
     {

@@ -3,13 +3,14 @@
 #include <QDebug>
 #include <memory>
 #include "CPUBoundScanOperations.h"
-#include "DeviceBoundScanOperation.h"
+#include "GPUScanWorker.h"
 #include "TestScanner.h"
-#include "QueueFilesOperation.h"
+#include "ScanWorkManager.h"
 
 
 TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(parent),
-    m_secondsElapsed(0), 
+    m_secondsElapsed(0),
+    m_startSeconds(0),
     m_currentScanObject(""), 
     m_itemsScanned(0),
     m_totalItemsToScan(0),
@@ -22,7 +23,7 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_detections.clear();
     endResetModel();
 
-    m_timer.setInterval(1);
+    m_timer.setInterval(500);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
 }
 
@@ -30,10 +31,11 @@ void TestScannerListModel::runScan()
 {
     m_itemsScanned = 0;
     m_secondsElapsed = 0;
+    m_startSeconds = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     m_timer.start();
-    auto queueOperation = new QueueFilesOperation(nullptr, this);
-    m_totalItemsToScan = queueOperation->totalFilesToScan();
-    QThreadPool::globalInstance()->start(queueOperation);
+    auto workManager = new ScanWorkManager(this, this);
+    connect(workManager, &ScanWorkManager::finished, workManager, &QObject::deleteLater);
+    workManager->start();
 }
 
 int TestScannerListModel::totalItems()
@@ -111,7 +113,7 @@ QString TestScannerListModel::getTimeElapsedString(int secondsElapsed)
 
 void TestScannerListModel::OnTimerTimeout()
 {
-    m_secondsElapsed += 0.01;
+    m_secondsElapsed = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000 - m_startSeconds;
     emit timeElapsedChanged();
     emit totalItemsChanged();
     emit itemsScannedChanged();
@@ -119,8 +121,9 @@ void TestScannerListModel::OnTimerTimeout()
     emit scanProgressChanged();
 }
 
-void TestScannerListModel::OnFileProcessingComplete(QString filePath, int checksum)
+void TestScannerListModel::OnFileProcessingComplete(QString filePath, int totalFilesToScan)
 {
+    m_totalItemsToScan = totalFilesToScan;
     m_currentScanObject = filePath;
     m_itemsScanned++;
     if(m_itemsScanned == m_totalItemsToScan)

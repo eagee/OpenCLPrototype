@@ -17,8 +17,6 @@ public:
 
     int RunCPUFileScan();
 
-    void RunGPUFileScan();
-
 signals:
 
     void processingComplete(QString filePath, int checksum);

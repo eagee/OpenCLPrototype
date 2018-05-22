@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "DeviceBoundScanOperation.h"
+#include "GPUScanWorker.h"
 #include "TestScanner.h"
 #include <CL/cl.h>
 #include "qglobal.h"

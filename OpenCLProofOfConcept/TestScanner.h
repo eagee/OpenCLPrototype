@@ -7,8 +7,8 @@
 #include <QAbstractListModel>
 #include <QTimer>
 #include "OpenClProgram.h"
-#include "DeviceBoundScanOperation.h"
-#include "QueueFilesOperation.h"
+#include "GPUScanWorker.h"
+#include "ScanWorkManager.h"
 
 
 class TestScannerListModel : public QAbstractListModel
@@ -57,16 +57,17 @@ signals:
     void scanProgressChanged();
 
 public slots:
-    void OnFileProcessingComplete(QString filePath, int checksum);
+    void OnFileProcessingComplete(QString filePath, int totalFilesToScan);
     void OnInfectionFound(QString filePath);
 
 private:
 
-    QPointer<DeviceBoundScanOperation> m_gpuScan;    
+    ScanWorkManager m_scanWorkManager;
     QList<QString> m_detections;
     QString m_currentScanObject;
     int m_itemsScanned;
     int m_totalItemsToScan;
+    qreal m_startSeconds;
     qreal m_secondsElapsed;
     QDateTime m_startTime;
     QTimer m_timer;
