@@ -14,7 +14,8 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_currentScanObject(""), 
     m_itemsScanned(0),
     m_totalItemsToScan(0),
-    m_startTime(QDateTime::currentDateTime())
+    m_startTime(QDateTime::currentDateTime()),
+    m_scanWorkManager(this, this)
 {
     m_currentScanObject = ""; // m_filesToScan.at(0).absoluteFilePath();
     m_itemsScanned = 0;
@@ -25,6 +26,15 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
 
     m_timer.setInterval(500);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
+
+    // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
+    m_scanWorkManager.moveToThread(&m_scanManagerThread);
+    QObject::connect(&m_scanManagerThread, &QThread::started, &m_scanWorkManager, &ScanWorkManager::doWork);
+    QObject::connect(&m_scanWorkManager, &ScanWorkManager::workFinished, &m_scanManagerThread, &QThread::quit);
+
+    // Cleanup code we don't need since we decided to use the stack instead of pointers - todo: remove if we're sure this is what we want
+    // QObject::connect(&m_scanManagerThread, &QThread::finished, &m_scanManagerThread, &QThread::deleteLater);
+    // QObject::connect(&m_scanManagerThread, &QThread::finished, &m_scanWorkManager, &ScanWorkManager::deleteLater);
 }
 
 void TestScannerListModel::runScan()
@@ -33,9 +43,7 @@ void TestScannerListModel::runScan()
     m_secondsElapsed = 0;
     m_startSeconds = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     m_timer.start();
-    auto workManager = new ScanWorkManager(this, this);
-    connect(workManager, &ScanWorkManager::finished, workManager, &QObject::deleteLater);
-    workManager->start();
+    m_scanManagerThread.start();
 }
 
 int TestScannerListModel::totalItems()

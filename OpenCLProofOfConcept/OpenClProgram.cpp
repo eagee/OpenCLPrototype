@@ -69,11 +69,12 @@ bool OpenClProgram::CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size
     return true;
 }
 
-bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback)
+bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback, bool blockThread /*= true*/)
 {
     int errorCode = 0;
     // Perform a non-blocking write operation that will trigger eventCallback when it's complete
-    errorCode = clEnqueueWriteBuffer(m_commandQueue, buffer, CL_TRUE, offset, sizeInBytes, data, NULL, nullptr, eventCallback);
+    cl_bool useBlockingOperation = (blockThread == true) ? CL_TRUE : CL_FALSE;
+    errorCode = clEnqueueWriteBuffer(m_commandQueue, buffer, useBlockingOperation, offset, sizeInBytes, data, NULL, nullptr, eventCallback);
     if (errorCode < CL_SUCCESS)
     {
         qDebug() << Q_FUNC_INFO << " Failed to write cl_mem file buffer with error code: " << errorName(errorCode);

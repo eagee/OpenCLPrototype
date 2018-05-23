@@ -6,7 +6,7 @@
 class IScanWorker : public QThread
 {
     Q_OBJECT
-
+    
 protected:
 
     struct OperationType
@@ -14,7 +14,8 @@ protected:
         enum enum_type
         {
             Load,
-            ExecuteScan
+            ExecuteScan,
+            ReadResults
         };
         enum_type Type;
         QString FilePath;
@@ -29,6 +30,8 @@ public:
     virtual bool queueLoadOperation(QString filePath) = 0;
 
     virtual bool queueScanOperation() = 0;
+    
+    virtual bool queueReadOperation() = 0;
 
     virtual ScanWorkerState::enum_type state() const = 0;
 
@@ -45,8 +48,6 @@ public:
     virtual void processResults() = 0;
 
 signals:
-
-    void stateChanged();
 
     void infectionFound(QString filePath);
 

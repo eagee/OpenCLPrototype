@@ -10,4 +10,6 @@ struct ScanWorkerState
         Complete,
         Error
     };
+
+    static QString ToString(ScanWorkerState::enum_type type);
 };

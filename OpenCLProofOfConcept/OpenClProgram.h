@@ -42,7 +42,7 @@ public:
 
     Q_INVOKABLE bool CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size, void *hostPointer);
 
-    Q_INVOKABLE bool WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback);
+    Q_INVOKABLE bool WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback, bool blockThread = true);
 
     Q_INVOKABLE bool ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback);
 

@@ -26,6 +26,8 @@ public:
 
     virtual bool queueScanOperation() override;
 
+    virtual bool queueReadOperation() override;
+
     void run();
 
     virtual ScanWorkerState::enum_type state() const override;
@@ -41,6 +43,10 @@ public:
     int queuedFileCount() const override;
 
     virtual void processResults() override;
+
+signals:
+    void stateChanged(void *scanWorkerPtr);
+
 
 private:
     OperationType m_nextOperation;
@@ -63,3 +69,4 @@ private:
 
     static void CL_CALLBACK gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, void *user_data);
 };
+//Q_DECLARE_METATYPE(GPUScanWorker, "GPUScanWorker")

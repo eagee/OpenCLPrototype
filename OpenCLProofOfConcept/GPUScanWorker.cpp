@@ -32,37 +32,36 @@ bool GPUScanWorker::loadFileData(const QString &filePath)
 
     QByteArray clFileBufferData = file.read(m_bytesPerFile);
 
-    int lenght = clFileBufferData.size();
     void *data = (void*)clFileBufferData.constData();
 
     m_state = ScanWorkerState::Copying;
 
     size_t dataOffset = (m_filesToScan.size() * m_bytesPerFile);
-    if (!m_openClProgram.WriteBuffer(m_fileDataBuffer, dataOffset, m_bytesPerFile, data, nullptr)) //&m_gpuFinishedEvent
+    if (!m_openClProgram.WriteBuffer(m_fileDataBuffer, dataOffset, m_bytesPerFile, data, &m_gpuFinishedEvent)) //&m_gpuFinishedEvent
     {
         qDebug() << Q_FUNC_INFO << "Unable to write file buffer to GPU: " << filePath;
         return false;
     }
     
     // Set up our event callback so that we're notified when the kernel is done (and can put ourselves back into the worker queue)
-    //cl_int errcode = clSetEventCallback(m_gpuFinishedEvent, CL_COMPLETE, &GPUScanWorker::gpuFinishedCallback, this);
-    //if (errcode != CL_SUCCESS)
-    //{
-    //    m_state = ScanWorkerState::Error;
-    //    qDebug() << Q_FUNC_INFO << " Failed to set up event with error: " << OpenClProgram::errorName(errcode);
-    //}
+    cl_int errcode = clSetEventCallback(m_gpuFinishedEvent, CL_COMPLETE, &GPUScanWorker::gpuFinishedCallback, this);
+    if (errcode != CL_SUCCESS)
+    {
+        m_state = ScanWorkerState::Error;
+        qDebug() << Q_FUNC_INFO << " Failed to set up event with error: " << OpenClProgram::errorName(errcode);
+    }
 
     m_filesToScan.append(filePath);
 
-    if (areBuffersFull() == true)
-    {
-        setState(ScanWorkerState::Ready);
-    }
-    else
-    {
-        setState(ScanWorkerState::Available);
-    }
-
+    //if (areBuffersFull() == true)
+    //{
+    //    setState(ScanWorkerState::Ready);
+    //}
+    //else
+    //{
+    //    setState(ScanWorkerState::Available);
+    //}
+    
     return true;
 }
 
@@ -101,6 +100,18 @@ bool GPUScanWorker::queueScanOperation()
     return true;
 }
 
+bool GPUScanWorker::queueReadOperation()
+{
+    //Q_ASSERT_X(m_state == ScanWorkerState::Complete, Q_FUNC_INFO, "read operations should not be queued in state: " + ScanWorkerState::ToString(m_state));
+    if (m_state != ScanWorkerState::Complete)
+    {
+        qDebug() << Q_FUNC_INFO << "Read operations should not be queued in state: " + ScanWorkerState::ToString(m_state);
+        return false;
+    }
+    m_nextOperation.Type = OperationType::ReadResults;
+    return true;
+}
+
 void GPUScanWorker::run()
 {
     if(m_nextOperation.Type == OperationType::Load)
@@ -110,6 +121,12 @@ void GPUScanWorker::run()
     else if (m_nextOperation.Type == OperationType::ExecuteScan)
     {
         executeKernelOperation();
+    }
+    else if (m_nextOperation.Type == OperationType::ReadResults)
+    {
+        processResults();
+        resetFileBuffers();
+        setState(ScanWorkerState::Available);
     }
 }
 
@@ -121,7 +138,7 @@ ScanWorkerState::enum_type GPUScanWorker::state() const
 void GPUScanWorker::setState(ScanWorkerState::enum_type state)
 {
     m_state = state;
-    emit stateChanged();
+    emit stateChanged(static_cast<void*>(this));
 }
 
 bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
@@ -189,7 +206,6 @@ int GPUScanWorker::queuedFileCount() const
 void GPUScanWorker::processResults()
 {
     // Once we get our callback we read out the results of the output buffer...
-    //success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_WRITE_ONLY, (sizeof(int) * m_maxFiles), nullptr);
     bool success = m_openClProgram.ReadBuffer(m_outputBuffer, 0, (sizeof(int) * m_maxFiles), m_hostResultData.get(), nullptr);
     if (success)
     {
@@ -264,14 +280,14 @@ void GPUScanWorker::executeKernelOperation()
 void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, void *user_data)
 {
     Q_UNUSED(event);
+    
     qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
     GPUScanWorker *worker = static_cast<GPUScanWorker*>(user_data);
 
-    qDebug() << Q_FUNC_INFO << " Worker state: " << worker->state();
+    qDebug() << Q_FUNC_INFO << " Worker state: " << ScanWorkerState::ToString(worker->state());
     
     if (worker->state() == ScanWorkerState::Scanning)
     {    
-        worker->processResults();
         worker->setState(ScanWorkerState::Complete);
     }
     else if (worker->state() == ScanWorkerState::Copying)
