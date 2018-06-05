@@ -37,7 +37,7 @@ bool GPUScanWorker::loadFileData(const QString &filePath)
     m_state = ScanWorkerState::Copying;
 
     size_t dataOffset = (m_filesToScan.size() * m_bytesPerFile);
-    if (!m_openClProgram.WriteBuffer(m_fileDataBuffer, dataOffset, m_bytesPerFile, data, &m_gpuFinishedEvent)) //&m_gpuFinishedEvent
+    if (!m_openClProgram.WriteBuffer(m_fileDataBuffer, dataOffset, m_bytesPerFile, data, &m_gpuFinishedEvent, false)) //&m_gpuFinishedEvent
     {
         qDebug() << Q_FUNC_INFO << "Unable to write file buffer to GPU: " << filePath;
         return false;
@@ -211,7 +211,7 @@ void GPUScanWorker::processResults()
     {
         for (int index = 0; index < m_filesToScan.count(); index++)
         {
-            if (m_hostResultData[index] == 14330)
+            if (m_hostResultData[index] == 19542)
             {
                 emit infectionFound(m_filesToScan.at(index));
             }
@@ -228,7 +228,7 @@ void GPUScanWorker::executeKernelOperation()
         return;
     }
 
-    // We have to use a mutex so we don't accidentally queue kenel execution or set arguments at the same time
+    // We have to use a mutex so we don't accidentally queue kernel execution or set arguments at the same time
     // as other threads.
     QMutex mutex;
     QMutexLocker locker(&mutex);
