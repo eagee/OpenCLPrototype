@@ -47,6 +47,8 @@ public:
 
     virtual void processResults() = 0;
 
+    void run() {}
+
 signals:
 
     void infectionFound(QString filePath);

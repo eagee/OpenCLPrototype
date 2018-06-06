@@ -5,11 +5,15 @@
 #include "OpenClProgram.h"
 #include "CPUBoundScanOperations.h"
 #include "GPUScanWorker.h"
+#include "CPUScanWorker.h"
 
-const int BYTES_PER_FILE = 1024;
+const int BYTES_PER_FILE = 255;
 const int GPU_PROGRAM_POOL_SIZE = 64;
+const int MAX_FILES_PER_PROGRAM = 64;
 
-ScanWorkManager::ScanWorkManager(QObject *parent, TestScannerListModel *testScanner): QObject(parent)
+#define USE_CPU
+
+ScanWorkManager::ScanWorkManager(QObject *parent): QObject(parent)
 {
 }
 
@@ -37,7 +41,6 @@ const QFileInfo* ScanWorkManager::GetNextFile()
             m_fileIndex->fetchAndAddAcquire(1);
             nextFile = &m_filesToScan->at(*m_fileIndex);
         }
-        //QMetaObject::invokeMethod(m_parent, "OnFileProcessingComplete", Q_ARG(QString, nextFile->filePath()), Q_ARG(int, m_filesToScan->count()));
         emit fileProcessingComplete(nextFile->filePath(), m_filesToScan->count());
         m_fileIndex->fetchAndAddAcquire(1);
     }
@@ -46,7 +49,6 @@ const QFileInfo* ScanWorkManager::GetNextFile()
 
 void ScanWorkManager::InitWorkers()
 {
-
     m_fileIndex.reset(new QAtomicInt(0));
 
     QDir testDir("C:\\TestFiles");
@@ -56,11 +58,19 @@ void ScanWorkManager::InitWorkers()
     // Set up our pool of worker objects
     for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
     {
-        GPUScanWorker *newProgram = new GPUScanWorker(this);
-        newProgram->createFileBuffers(BYTES_PER_FILE, 2048);
-        QObject::connect(newProgram, &GPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
-        QObject::connect(newProgram, &GPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
-        m_gpuProgramPool.push_back(newProgram);
+#ifdef USE_CPU
+        CPUScanWorker *newCpuProgram = new CPUScanWorker(this);
+        newCpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
+        //QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged, Qt::DirectConnection);
+        //QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound, Qt::DirectConnection);
+        m_programPool.push_back(newCpuProgram);
+#else
+        GPUScanWorker *newGpuProgram = new GPUScanWorker(this);
+        newGpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
+        QObject::connect(newGpuProgram, &GPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
+        QObject::connect(newGpuProgram, &GPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
+        m_programPool.push_back(newGpuProgram);
+#endif
     }
 }
 
@@ -68,23 +78,16 @@ void ScanWorkManager::doWork()
 {
     InitWorkers();
 
-    //for (int ix = 0; ix < m_filesToScan->count() - 1; ix++)
-    //{
-    //    GetNextFile();
-    //}
-
     for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
     {
         const QFileInfo* nextFile = GetNextFile();
-        m_gpuProgramPool.at(ix)->queueLoadOperation(nextFile->filePath());
+        m_programPool.at(ix)->queueLoadOperation(nextFile->filePath());
     }
     
     for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
     {
-        m_gpuProgramPool.at(ix)->run();
+        m_programPool.at(ix)->run();
     }
-
-    //OnStateChanged(m_gpuProgramPool.at(0));
 
     // Our thread won't return finished until we've processed our last file
     // we'll just hang out in this event loop until then (so that we can process all our opencl events)
@@ -96,7 +99,7 @@ void ScanWorkManager::doWork()
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 {
     GPUScanWorker *scanWorker = static_cast<GPUScanWorker*>(scanWorkerPtr);
-    qDebug() << Q_FUNC_INFO << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
+    //qDebug() << Q_FUNC_INFO << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
     
     // If the state of the worker is Available and there are more files to scan we'll queue the next file
     if (scanWorker->state() == ScanWorkerState::Available)
@@ -129,7 +132,6 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 
 void ScanWorkManager::OnInfectionFound(QString filePath)
 {
-    //QMetaObject::invokeMethod(m_parent, "OnInfectionFound", Q_ARG(QString, filePath));
     emit infectionFound(filePath);
 }
 
@@ -145,7 +147,6 @@ bool ScanWorkManager::CanProcessFile(QString filePath)
     if (BYTES_PER_FILE > file.size())
     {
         // Report the file we can't process as having been scanned...
-        //QMetaObject::invokeMethod(m_parent, "OnFileProcessingComplete", Q_ARG(QString, filePath), Q_ARG(int, m_filesToScan->count()));
         emit fileProcessingComplete(filePath, m_filesToScan->count());
         return false;
     }

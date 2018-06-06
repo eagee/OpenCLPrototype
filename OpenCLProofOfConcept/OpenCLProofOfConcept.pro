@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     OpenClProgram.cpp \
     ScanWorkerState.cpp \
     ScanWorkManager.cpp \
-    GPUScanWorker.cpp
+    GPUScanWorker.cpp \
+    CPUScanWorker.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,7 +33,8 @@ HEADERS += \
     ScanWorkerState.h \
     ScanWorkManager.h \
     IScanWorker.h \
-    GPUScanWorker.h
+    GPUScanWorker.h \
+    CPUScanWorker.h
 
 win32 {
     !contains(QMAKE_TARGET.arch, x86_64) {

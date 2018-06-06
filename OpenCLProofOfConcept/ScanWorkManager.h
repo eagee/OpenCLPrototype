@@ -5,6 +5,7 @@
 #include <QQueue>
 #include <QEventLoop>
 #include <QAtomicInt>
+#include "CPUScanWorker.h"
 #include "GPUScanWorker.h"
 
 class TestScannerListModel;
@@ -15,7 +16,7 @@ class ScanWorkManager : public QObject
 
 public:
 
-    ScanWorkManager(QObject *parent = nullptr, TestScannerListModel *testScanner = nullptr);
+    ScanWorkManager(QObject *parent = nullptr);
 
     int totalFilesToScan();
 
@@ -34,7 +35,7 @@ private slots:
 
 private:
     QScopedPointer<QFileInfoList> m_filesToScan;
-    QList<GPUScanWorker*> m_gpuProgramPool;
+    QList<IScanWorker*> m_programPool;
     QScopedPointer<QAtomicInt> m_fileIndex;
 
     bool CanProcessFile(QString filePath);

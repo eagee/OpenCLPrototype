@@ -211,7 +211,7 @@ void GPUScanWorker::processResults()
     {
         for (int index = 0; index < m_filesToScan.count(); index++)
         {
-            if (m_hostResultData[index] == 19542)
+            if (m_hostResultData[index] == 14330)
             {
                 emit infectionFound(m_filesToScan.at(index));
             }
@@ -254,7 +254,7 @@ void GPUScanWorker::executeKernelOperation()
 
     // TODO: Set our work item and group sizes appropriately for our 5 compute node GPU!
     const size_t workItemSize = m_maxFiles;
-    const size_t workGroupSize = 1024;
+    const size_t workGroupSize = m_maxFiles / 8;
 
     // Now if we kick off our kernel operation it'll process all of the files we've enqueued and send us an event when it's
     // done that we can use to read out the contents of the output buffer when it's done.
@@ -281,10 +281,10 @@ void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, 
 {
     Q_UNUSED(event);
     
-    qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
+    //qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
     GPUScanWorker *worker = static_cast<GPUScanWorker*>(user_data);
 
-    qDebug() << Q_FUNC_INFO << " Worker state: " << ScanWorkerState::ToString(worker->state());
+    //qDebug() << Q_FUNC_INFO << " Worker state: " << ScanWorkerState::ToString(worker->state());
     
     if (worker->state() == ScanWorkerState::Scanning)
     {    
