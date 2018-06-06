@@ -19,25 +19,29 @@ public:
 
     int totalFilesToScan();
 
+signals:
+    void workFinished();
+    void fileProcessingComplete(QString filePath, int totalFilesToScan);
+    void infectionFound(QString filePath);
+
+public slots:
     // Called by started() signal of thread this object is moved to
     void doWork();
-
-signals:
-    // Indicates to thread this object is moved to that work is finished.
-    void workFinished();
 
 private slots:
     void OnInfectionFound(QString filePath);
     void OnStateChanged(void *scanWorkerPtr);
 
 private:
-    QFileInfoList m_filesToScan;
-    TestScannerListModel *m_parent;
+    QScopedPointer<QFileInfoList> m_filesToScan;
     QList<GPUScanWorker*> m_gpuProgramPool;
-    
-    QAtomicInt m_fileIndex;
+    QScopedPointer<QAtomicInt> m_fileIndex;
 
     bool CanProcessFile(QString filePath);
     const QFileInfo* GetNextFile();
 
+    /// Handles initializing all the objects that will need to interact with opencl and the scanworkmanager.
+    /// Note: This objects must be initialized inside of the doWork operation or they'll exist on the calling
+    ///       or UI thread instead of the thread ScanWorkManager is moved to.
+    void InitWorkers();
 };

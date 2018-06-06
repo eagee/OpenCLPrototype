@@ -14,8 +14,7 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_currentScanObject(""), 
     m_itemsScanned(0),
     m_totalItemsToScan(0),
-    m_startTime(QDateTime::currentDateTime()),
-    m_scanWorkManager(this, this)
+    m_startTime(QDateTime::currentDateTime())
 {
     m_currentScanObject = ""; // m_filesToScan.at(0).absoluteFilePath();
     m_itemsScanned = 0;
@@ -24,17 +23,10 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_detections.clear();
     endResetModel();
 
-    m_timer.setInterval(500);
+    m_timer.setInterval(100);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
 
-    // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
-    m_scanWorkManager.moveToThread(&m_scanManagerThread);
-    QObject::connect(&m_scanManagerThread, &QThread::started, &m_scanWorkManager, &ScanWorkManager::doWork);
-    QObject::connect(&m_scanWorkManager, &ScanWorkManager::workFinished, &m_scanManagerThread, &QThread::quit);
-
-    // Cleanup code we don't need since we decided to use the stack instead of pointers - todo: remove if we're sure this is what we want
-    // QObject::connect(&m_scanManagerThread, &QThread::finished, &m_scanManagerThread, &QThread::deleteLater);
-    // QObject::connect(&m_scanManagerThread, &QThread::finished, &m_scanWorkManager, &ScanWorkManager::deleteLater);
+    m_scanThread = new QThread();
 }
 
 void TestScannerListModel::runScan()
@@ -43,7 +35,17 @@ void TestScannerListModel::runScan()
     m_secondsElapsed = 0;
     m_startSeconds = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     m_timer.start();
-    m_scanManagerThread.start();
+
+    // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
+    m_scanWorker = new ScanWorkManager();
+    m_scanWorker->moveToThread(m_scanThread);
+    QObject::connect(m_scanThread, &QThread::started, m_scanWorker, &ScanWorkManager::doWork);
+    QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, m_scanThread, &QThread::quit);
+    QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, m_scanThread, &ScanWorkManager::deleteLater);
+    QObject::connect(m_scanWorker, &ScanWorkManager::infectionFound, this, &TestScannerListModel::OnInfectionFound);
+    QObject::connect(m_scanWorker, &ScanWorkManager::fileProcessingComplete, this, &TestScannerListModel::OnFileProcessingComplete);
+    QObject::connect(m_scanThread, &QThread::finished, m_scanThread, &QThread::deleteLater);
+    m_scanThread->start();
 }
 
 int TestScannerListModel::totalItems()

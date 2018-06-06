@@ -61,8 +61,8 @@ public slots:
     void OnInfectionFound(QString filePath);
 
 private:
-    QThread m_scanManagerThread;
-    ScanWorkManager m_scanWorkManager;
+    QPointer<QThread> m_scanThread;
+    QPointer<ScanWorkManager> m_scanWorker;
     QList<QString> m_detections;
     QString m_currentScanObject;
     int m_itemsScanned;
