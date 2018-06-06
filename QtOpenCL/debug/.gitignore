@@ -1,0 +1,4 @@
+*.pdb
+*.log
+*.obj
+*.lib
