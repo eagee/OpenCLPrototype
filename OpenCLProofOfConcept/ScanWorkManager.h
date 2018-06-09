@@ -21,6 +21,7 @@ public:
     int totalFilesToScan();
 
 signals:
+    void allFilesQueued();
     void workFinished();
     void fileProcessingComplete(QString filePath, int totalFilesToScan);
     void infectionFound(QString filePath);

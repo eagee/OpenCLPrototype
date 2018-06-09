@@ -42,11 +42,11 @@ bool CPUScanWorker::loadFileData(const QString &filePath)
 
     if (areBuffersFull() == true)
     {
-        setState(ScanWorkerState::Ready);
+        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateReady);
     }
     else
     {
-        setState(ScanWorkerState::Available);
+        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateAvailabile);
     }
 
     return true;
@@ -111,7 +111,7 @@ void CPUScanWorker::run()
     {
         processResults();
         resetFileBuffers();
-        setState(ScanWorkerState::Available);
+        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateAvailabile);
     }
 }
 
@@ -191,6 +191,6 @@ void CPUScanWorker::executeKernelOperation()
         fileNumber++;
     }
 
-    setState(ScanWorkerState::Complete);
+    QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
 }
 

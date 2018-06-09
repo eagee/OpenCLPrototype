@@ -41,6 +41,22 @@ public:
 
     virtual void processResults() override;
 
+public slots:
+    void OnSetStateAvailabile()
+    {
+        setState(ScanWorkerState::Available);
+    }
+
+    void OnSetStateReady()
+    {
+        setState(ScanWorkerState::Ready);
+    }
+
+    void OnSetStateComplete()
+    {
+        setState(ScanWorkerState::Complete);
+    }
+
 signals:
     void stateChanged(void *scanWorkerPtr);
 

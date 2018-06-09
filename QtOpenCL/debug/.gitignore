@@ -2,3 +2,5 @@
 *.log
 *.obj
 *.lib
+/QtOpenCL.log
+/vc120.pdb

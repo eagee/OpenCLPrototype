@@ -8,10 +8,10 @@
 #include "CPUScanWorker.h"
 
 const int BYTES_PER_FILE = 255;
-const int GPU_PROGRAM_POOL_SIZE = 64;
+const int PROGRAM_POOL_SIZE = 64;
 const int MAX_FILES_PER_PROGRAM = 64;
 
-#define USE_CPU
+//#define USE_CPU
 
 ScanWorkManager::ScanWorkManager(QObject *parent): QObject(parent)
 {
@@ -56,13 +56,13 @@ void ScanWorkManager::InitWorkers()
     qDebug() << Q_FUNC_INFO << " Preparing to scan this many files: " << m_filesToScan->count();
 
     // Set up our pool of worker objects
-    for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
+    for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
     {
 #ifdef USE_CPU
         CPUScanWorker *newCpuProgram = new CPUScanWorker(this);
         newCpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
-        //QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged, Qt::DirectConnection);
-        //QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound, Qt::DirectConnection);
+        QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged, Qt::DirectConnection);
+        QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound, Qt::DirectConnection);
         m_programPool.push_back(newCpuProgram);
 #else
         GPUScanWorker *newGpuProgram = new GPUScanWorker(this);
@@ -78,13 +78,13 @@ void ScanWorkManager::doWork()
 {
     InitWorkers();
 
-    for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
+    for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
     {
         const QFileInfo* nextFile = GetNextFile();
         m_programPool.at(ix)->queueLoadOperation(nextFile->filePath());
     }
     
-    for (int ix = 0; ix < GPU_PROGRAM_POOL_SIZE; ix++)
+    for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
     {
         m_programPool.at(ix)->run();
     }
@@ -92,8 +92,31 @@ void ScanWorkManager::doWork()
     // Our thread won't return finished until we've processed our last file
     // we'll just hang out in this event loop until then (so that we can process all our opencl events)
     QEventLoop eventLoop;
-    QObject::connect(this, &ScanWorkManager::workFinished, &eventLoop, &QEventLoop::quit);
+    QObject::connect(this, &ScanWorkManager::allFilesQueued, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
+
+    //// Run all of our gpu programs one last time now that we know all files are queued...
+    //bool allAreAvailable = false;
+    //while (!allAreAvailable)
+    //{
+    //    int count = 0;
+    //    for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
+    //    {
+    //        if (m_programPool.at(ix)->state() == ScanWorkerState::Available || m_programPool.at(ix)->state() == ScanWorkerState::Ready)
+    //        {
+    //            count++;
+    //        }
+    //    }
+    //    if(count >= PROGRAM_POOL_SIZE)
+    //        allAreAvailable = true;
+    //}
+    //
+    //for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
+    //{
+    //    m_programPool.at(ix)->run();
+    //}
+
+    emit workFinished();
 }
 
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
@@ -109,6 +132,9 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
         { 
             scanWorker->queueLoadOperation(nextFile->filePath());
             scanWorker->run();
+        }
+        else {
+            emit allFilesQueued();
         }
     }
     // If the state of the worker is Ready we'll queue a scan operation to run on the worker
@@ -126,7 +152,8 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
     }
     else
     {
-        Q_ASSERT_X(false, Q_FUNC_INFO, QString("This isn't a state we support in work manager. Please examine results: %1").arg(ScanWorkerState::ToString(scanWorker->state())).toStdString().c_str() );
+        ScanWorkerState::enum_type state = scanWorker->state();
+        Q_ASSERT_X(false, Q_FUNC_INFO, QString("This isn't a state we support in work manager. Please examine results: %1").arg(ScanWorkerState::ToString(state)).toStdString().c_str() );
     }
 }
 
