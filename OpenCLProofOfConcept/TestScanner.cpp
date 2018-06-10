@@ -14,7 +14,9 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_currentScanObject(""), 
     m_itemsScanned(0),
     m_totalItemsToScan(0),
-    m_startTime(QDateTime::currentDateTime())
+    m_startTime(QDateTime::currentDateTime()),
+    m_useGPU(false),
+    m_running(false)
 {
     m_currentScanObject = ""; // m_filesToScan.at(0).absoluteFilePath();
     m_itemsScanned = 0;
@@ -25,8 +27,22 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
 
     m_timer.setInterval(100);
     QObject::connect(&m_timer, &QTimer::timeout, this, &TestScannerListModel::OnTimerTimeout);
+}
 
-    m_scanThread = new QThread();
+bool TestScannerListModel::running()
+{
+    return m_running;
+}
+
+bool TestScannerListModel::useGPU()
+{
+    return m_useGPU;
+}
+
+void TestScannerListModel::setUseGPU(bool value)
+{
+    m_useGPU = value;
+    emit useGPUChanged();
 }
 
 void TestScannerListModel::runScan()
@@ -37,15 +53,18 @@ void TestScannerListModel::runScan()
     m_timer.start();
 
     // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
-    m_scanWorker = new ScanWorkManager();
+    m_scanWorker = new ScanWorkManager(nullptr, m_useGPU);
+    m_scanThread = new QThread();
     m_scanWorker->moveToThread(m_scanThread);
     QObject::connect(m_scanThread, &QThread::started, m_scanWorker, &ScanWorkManager::doWork);
     QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, m_scanThread, &QThread::quit);
-    QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, m_scanThread, &ScanWorkManager::deleteLater);
     QObject::connect(m_scanWorker, &ScanWorkManager::infectionFound, this, &TestScannerListModel::OnInfectionFound);
     QObject::connect(m_scanWorker, &ScanWorkManager::fileProcessingComplete, this, &TestScannerListModel::OnFileProcessingComplete);
     QObject::connect(m_scanThread, &QThread::finished, m_scanThread, &QThread::deleteLater);
+    QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, this, &TestScannerListModel::OnScanworkerFinished);
     m_scanThread->start();
+    m_running = true;
+    emit runningChanged();
 }
 
 int TestScannerListModel::totalItems()
@@ -152,4 +171,14 @@ void TestScannerListModel::OnInfectionFound(QString filePath)
     beginInsertRows(QModelIndex(), 0, 0);
     m_detections.push_back(filePath);
     endInsertRows();
+}
+
+void TestScannerListModel::OnScanworkerFinished()
+{
+    if (m_scanWorker != nullptr)
+    {
+        m_scanWorker->deleteLater();
+    }
+    m_running = false;
+    emit runningChanged();
 }

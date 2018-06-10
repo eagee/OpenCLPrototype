@@ -16,12 +16,10 @@ class ScanWorkManager : public QObject
 
 public:
 
-    ScanWorkManager(QObject *parent = nullptr);
-
+    ScanWorkManager(QObject *parent = nullptr, bool useGPU = false);
     int totalFilesToScan();
 
 signals:
-    void allFilesQueued();
     void workFinished();
     void fileProcessingComplete(QString filePath, int totalFilesToScan);
     void infectionFound(QString filePath);
@@ -33,11 +31,14 @@ public slots:
 private slots:
     void OnInfectionFound(QString filePath);
     void OnStateChanged(void *scanWorkerPtr);
+    void QueueAndRunScanWorker(IScanWorker *scanWorker);
 
 private:
     QScopedPointer<QFileInfoList> m_filesToScan;
     QList<IScanWorker*> m_programPool;
     QScopedPointer<QAtomicInt> m_fileIndex;
+    QAtomicInt m_scanWorkersFinished;
+    bool m_useGPU;
 
     bool CanProcessFile(QString filePath);
     const QFileInfo* GetNextFile();

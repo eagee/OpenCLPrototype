@@ -32,8 +32,9 @@ bool CPUScanWorker::loadFileData(const QString &filePath)
 
     m_state = ScanWorkerState::Copying;
 
-    size_t dataOffset = (m_filesToScan.size() * m_bytesPerFile);
-    for(size_t ix = dataOffset; ix < m_bytesPerFile; ix++)
+    unsigned int filesToScan = (m_filesToScan.size());
+    unsigned int dataOffset = (filesToScan * m_bytesPerFile);
+    for(unsigned int ix = dataOffset; ix < dataOffset + m_bytesPerFile; ix++)
     {
         m_fileDataBuffer[ix] = clFileBufferData[ix - dataOffset];
     }
@@ -161,11 +162,11 @@ void CPUScanWorker::processResults()
     // Iterate through the host result data and see if we've got a matching checksum
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
-        if (m_hostResultData[index] == 14330)
+        if (m_hostResultData[index] == 14330 || m_hostResultData[index] == 5974)
         {
             emit infectionFound(m_filesToScan.at(index));
         }
-        qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
+        //qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
     }
 }
 
@@ -179,16 +180,15 @@ void CPUScanWorker::executeKernelOperation()
 
     m_state = ScanWorkerState::Scanning;
 
-    int fileNumber = 0;
-    for (size_t fileOffset = 0; fileOffset < m_maxFiles * m_bytesPerFile; fileOffset += m_bytesPerFile)
+    for (int index = 0; index < m_filesToScan.count(); index++)
     {
-        size_t outputChecksum = 0;
-        for (size_t checksumOffset = 0; checksumOffset < m_bytesPerFile; checksumOffset++)
+        int outputChecksum = 0;
+        unsigned int fileOffset = index * m_bytesPerFile;
+        for (int checksumOffset = 0; checksumOffset < m_bytesPerFile; checksumOffset++)
         {
             outputChecksum += m_fileDataBuffer[fileOffset + checksumOffset];
         }
-        m_hostResultData[fileNumber] = outputChecksum;
-        fileNumber++;
+        m_hostResultData[index] = outputChecksum;
     }
 
     QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
