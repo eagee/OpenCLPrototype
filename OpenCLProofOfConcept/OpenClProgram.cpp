@@ -83,12 +83,13 @@ bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInByte
     return true;
 }
 
-Q_INVOKABLE bool OpenClProgram::ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback)
+Q_INVOKABLE bool OpenClProgram::ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback, bool blockThread /*= true*/)
 {
     Q_UNUSED(eventCallback);
     Q_UNUSED(offset);
 
-    cl_int errorCode = clEnqueueReadBuffer(m_commandQueue, buffer, CL_TRUE, 0, sizeInBytes, data, 0, NULL, NULL);
+    cl_bool useBlockingOperation = (blockThread == true) ? CL_TRUE : CL_FALSE;
+    cl_int errorCode = clEnqueueReadBuffer(m_commandQueue, buffer, useBlockingOperation, 0, sizeInBytes, data, 0, NULL, eventCallback);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to read output buffer with error code: " << errorName(errorCode);
         return false;
@@ -129,7 +130,8 @@ void OpenClProgram::UnMapBuffer(cl_mem &buffer, void *mappedPointer)
 int OpenClProgram::ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback)
 {
     int errorCode = 0;
-    errorCode = clEnqueueNDRangeKernel(m_commandQueue, m_kernel, 1, NULL, &workItemCount, &computeGroupSize, 0, NULL, eventCallback);
+    ///using NULL instead of &computeGroupSize* allows openCL to determine the optimal work group size.
+    errorCode = clEnqueueNDRangeKernel(m_commandQueue, m_kernel, 1, NULL, &workItemCount, NULL, 0, NULL, eventCallback);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to enqueue kernel with error code: " << errorName(errorCode);
         return false;

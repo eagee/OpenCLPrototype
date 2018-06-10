@@ -1,9 +1,11 @@
 #pragma once
 #include <QThread>
+#include <QThreadPool>
+#include <QRunnable>
 #include "ScanWorkerState.h"
 
 /// Defines interface for ScanWorker implementations
-class IScanWorker : public QThread
+class IScanWorker : public QObject, public QRunnable
 {
     Q_OBJECT
     
@@ -23,7 +25,7 @@ protected:
 
 public:
 
-    explicit IScanWorker(QObject* parent = nullptr) : QThread(parent) { }
+    explicit IScanWorker(QObject* parent = nullptr) : QObject(parent) { }
 
     virtual ~IScanWorker() { }
 

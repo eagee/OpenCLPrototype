@@ -7,6 +7,7 @@ struct ScanWorkerState
         Copying,
         Ready,
         Scanning,
+        ReadingResults,
         Complete,
         Error
     };

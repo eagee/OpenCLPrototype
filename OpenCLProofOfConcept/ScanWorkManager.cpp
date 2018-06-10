@@ -87,7 +87,8 @@ void ScanWorkManager::doWork()
     
     for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
     {
-        m_programPool.at(ix)->run();
+        m_programPool.at(ix)->setAutoDelete(false);
+        QThreadPool::globalInstance()->start(m_programPool.at(ix));
     }
 
     // Our thread won't return finished until we've processed our last file
@@ -111,7 +112,7 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
         if(nextFile != nullptr)
         { 
             scanWorker->queueLoadOperation(nextFile->filePath());
-            scanWorker->run();
+            QThreadPool::globalInstance()->start(scanWorker);
         }
         else {
             QueueAndRunScanWorker(scanWorker);
@@ -127,7 +128,7 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
     else if (scanWorker->state() == ScanWorkerState::Complete)
     {
         scanWorker->queueReadOperation();
-        scanWorker->run();
+        QThreadPool::globalInstance()->start(scanWorker);
     }
     else
     {
@@ -140,7 +141,7 @@ void ScanWorkManager::QueueAndRunScanWorker(IScanWorker *scanWorker)
 {
     if (scanWorker->queueScanOperation())
     {
-        scanWorker->run();
+        QThreadPool::globalInstance()->start(scanWorker);
     }
     else
     {

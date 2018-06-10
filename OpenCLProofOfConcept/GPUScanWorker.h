@@ -30,6 +30,9 @@ public:
 
     void run();
 
+    void readResultsFromGPU();
+    
+
     virtual ScanWorkerState::enum_type state() const override;
 
     virtual void setState(ScanWorkerState::enum_type state) override;
