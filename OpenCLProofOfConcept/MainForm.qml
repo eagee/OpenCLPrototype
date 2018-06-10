@@ -47,8 +47,41 @@ Rectangle {
         }
 
         RowLayout {
-            spacing: 10
+            spacing: 20
+            Layout.bottomMargin: 20
+            Layout.alignment: Qt.AlignLeft
+            visible: !testScannerModel.running
+            Text {
+                id: labelOptions
+                x: 22
+                y: 247
+                width: 305
+                height: 14
+                text: qsTr("Options: ")
+                font.pixelSize: 12
+                Layout.fillWidth: true
+            }
 
+            CheckBox {
+                id: checkUseGPU
+                text: qsTr("Use GPU")
+                checked: testScannerModel.useGPU
+                Layout.alignment: Qt.AlignLeft
+                onCheckedChanged: {
+                    testScannerModel.useGPU = checkUseGPU.checked;
+                }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 500
+                Layout.fillWidth: true
+            }
+        }
+
+        RowLayout {
+            spacing: 10
+            visible: testScannerModel.itemsScanned > 0
+            Layout.bottomMargin: testScannerModel.running ? 0 : 20
             Text {
                 id: labelCurrentItem
                 x: 22
@@ -57,8 +90,10 @@ Rectangle {
                 height: 14
                 text: qsTr("Current Item: ") + testScannerModel.currentScanObject
                 font.pixelSize: 12
+                visible: testScannerModel.running
                 Layout.fillWidth: true
             }
+
             Text {
                 id: labelItemsScanned
                 x: 22
@@ -69,7 +104,6 @@ Rectangle {
                 font.pixelSize: 12
                 Layout.fillWidth: true
             }
-
 
             Text {
                 id: labelElapsedTime
@@ -91,10 +125,9 @@ Rectangle {
             }
         }
 
-
-
         ProgressBar {
             id: scanProgress
+            visible: testScannerModel.running
             x: 22
             y: 280
             width: 317

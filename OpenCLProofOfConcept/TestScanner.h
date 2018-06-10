@@ -19,6 +19,8 @@ class TestScannerListModel : public QAbstractListModel
     Q_PROPERTY(int itemsScanned READ itemsScanned NOTIFY itemsScannedChanged)
     Q_PROPERTY(QString timeElapsed READ timeElapsed NOTIFY timeElapsedChanged)
     Q_PROPERTY(qreal scanProgress READ scanProgress NOTIFY scanProgressChanged)
+    Q_PROPERTY(bool useGPU READ useGPU WRITE setUseGPU NOTIFY useGPUChanged)
+    Q_PROPERTY(bool running READ running NOTIFY runningChanged)
 
 public:
 
@@ -28,6 +30,12 @@ public:
     };
 
     TestScannerListModel(QObject *parent);
+
+    bool running();
+
+    bool useGPU();
+
+    void setUseGPU(bool value);
 
     int totalItems();
 
@@ -55,10 +63,13 @@ signals:
     void currentScanObjectChanged();
     void timeElapsedChanged();
     void scanProgressChanged();
+    void useGPUChanged();
+    void runningChanged();
 
 public slots:
     void OnFileProcessingComplete(QString filePath, int totalFilesToScan);
     void OnInfectionFound(QString filePath);
+    void OnScanworkerFinished();
 
 private:
     QPointer<QThread> m_scanThread;
@@ -71,6 +82,8 @@ private:
     qreal m_secondsElapsed;
     QDateTime m_startTime;
     QTimer m_timer;
+    bool m_useGPU;
+    bool m_running;
 
     QString getTimeElapsedString(int secondsElapsed);
 

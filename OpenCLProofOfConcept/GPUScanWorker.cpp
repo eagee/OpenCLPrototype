@@ -91,7 +91,7 @@ bool GPUScanWorker::queueScanOperation()
 {
     if(m_filesToScan.size() <= 0 || (m_state != ScanWorkerState::Available && m_state != ScanWorkerState::Ready))
     {
-        qDebug() << Q_FUNC_INFO << "Scan operation called with no files to scan or worker in a bad state :(.";
+        qDebug() << Q_FUNC_INFO << "Scan operation called with no files to scan.";
         return false;
     }
 
@@ -211,11 +211,11 @@ void GPUScanWorker::processResults()
     {
         for (int index = 0; index < m_filesToScan.count(); index++)
         {
-            if (m_hostResultData[index] == 14330)
+            if (m_hostResultData[index] == 19542 || m_hostResultData[index] == 5974)
             {
                 emit infectionFound(m_filesToScan.at(index));
             }
-            //qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
+            qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
         }
     }
 }
