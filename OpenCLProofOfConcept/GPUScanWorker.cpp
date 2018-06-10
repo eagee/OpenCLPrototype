@@ -4,7 +4,7 @@
 #include <QDebug>
 #include "OpenClProgram.h"
 
-OpenClProgram GPUScanWorker::m_openClProgram("createChecksum.cl", "createChecksum", OpenClProgram::DeviceType::GPU);
+OpenClProgram GPUScanWorker::m_openClProgram("createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
 
 GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/)
     : IScanWorker(parent)
