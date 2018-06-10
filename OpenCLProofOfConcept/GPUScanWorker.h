@@ -75,7 +75,7 @@ private:
     cl_mem m_dataSizeBuffer;
     cl_mem m_outputBuffer;
     cl_event m_gpuFinishedEvent;
-    std::unique_ptr<int[]> m_hostResultData;
+    std::unique_ptr<char[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
 
     bool loadFileData(const QString &filePath);

@@ -4,6 +4,8 @@
 #include <QDebug>
 #include "OpenClProgram.h"
 
+#define BYTES_INTS_IN_MD5_HASH 16
+
 OpenClProgram GPUScanWorker::m_openClProgram("createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
 
 GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/)
@@ -152,7 +154,7 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
 
     // Create a buffer that will be mapped between host and gpu for read/write operations (this will allow us to build the file
     // contents until the buffer is full on the host, and then we can unmap before the kernel executs, and remap when buffers are reset.
-    success = m_openClProgram.CreateBuffer(m_gpuFileDataBuffer, CL_MEM_READ_ONLY, (m_bytesPerFile * m_maxFiles), nullptr);
+    success = m_openClProgram.CreateBuffer(m_gpuFileDataBuffer, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, (m_bytesPerFile * m_maxFiles), nullptr);
     if(!success)
     {
         m_state = ScanWorkerState::Error;
@@ -179,14 +181,14 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
     }
 
     // Create the output buffer that will contain our hashes/checksums
-    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_WRITE_ONLY, (sizeof(int) * m_maxFiles), nullptr);
+    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_WRITE_ONLY, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), nullptr);
     if(!success)
     {
         qDebug() << Q_FUNC_INFO << " Failed to create cl_mem output buffer";
         return false;
     }
 
-    m_hostResultData.reset(new int[m_maxFiles]);
+    m_hostResultData.reset(new char[m_maxFiles * BYTES_INTS_IN_MD5_HASH]);
 
     // We need to call this the first time the method is run so that m_mappedHostFileData is mapped, enabling us to
     // access it directly (this will be called after each subsequent kernel operation is executed after that)
@@ -217,18 +219,25 @@ int GPUScanWorker::queuedFileCount() const
 void GPUScanWorker::processResults()
 {
     // Once we get our callback we read out the results of the output buffer...
-    bool success = m_openClProgram.ReadBuffer(m_outputBuffer, 0, (sizeof(int) * m_maxFiles), m_hostResultData.get(), nullptr);
-    if (success)
-    {
-        for (int index = 0; index < m_filesToScan.count(); index++)
-        {
-            if (m_hostResultData[index] == 19542 || m_hostResultData[index] == 5974)
-            {
-                emit infectionFound(m_filesToScan.at(index));
-            }
-            //qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
-        }
-    }
+    //bool success = m_openClProgram.ReadBuffer(m_outputBuffer, 0, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), m_hostResultData.get(), nullptr);
+    //if (success)
+    //{
+    //    for (int index = 0; index < m_filesToScan.count(); index++)
+    //    {
+    //        QByteArray hash;
+    //        hash.setRawData(&m_hostResultData[index * BYTES_INTS_IN_MD5_HASH], BYTES_INTS_IN_MD5_HASH);
+    //        QString hashString = hash.toHex();
+    //        
+    //        if (hashString  == "95e78b5b9da5d0feb5c4ab5a516608e9" ||
+    //            hashString  == "8448a87b66e10f80be542f1650208f12" ||
+    //            hashString  == "f42a7d487de3a5bd7deb18c933aa3d5e" ||
+    //            hashString  == "8ea6592c4f1e8b766e8e6a5861bf5b19")
+    //        {
+    //            emit infectionFound(m_filesToScan.at(index));
+    //        }
+    //        //qDebug() << "Hash for " << m_filesToScan.at(index) << ": " << hashString;
+    //    }
+    //}
 }
 
 void GPUScanWorker::executeKernelOperation()

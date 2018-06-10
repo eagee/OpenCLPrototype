@@ -4,3 +4,4 @@
 *.exp
 *.lib
 /OpenCLProofOfConcept.log
+/OpenCLProofOfConcept.Build.CppClean.log

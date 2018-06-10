@@ -109,7 +109,7 @@ static void md5RoundPrivate(__global uint* internalState, const uint* key) {
 }
 
 // Performs a round of md5 calculations using the specified data.
-static void md5Round(__global uint* internalState, __global uint* key) {
+static void md5RoundGlobal(__global uint* internalState, __global uint* key) {
     uint a, b, c, d;
     a = internalState[0];
     b = internalState[1];
@@ -208,7 +208,7 @@ void md5(__global char *message, uint lengthInBytes, __global uint* outputBuffer
     // Iterate through 64 bytes at a time to generate our digest
     for (bytesLeft = lengthInBytes;  bytesLeft >= 64; bytesLeft -= 64, message = &message[64]) 
     {
-        md5Round(outputBuffer, (__global uint*) message);
+        md5RoundGlobal(outputBuffer, (__global uint*) message);
     }
 
     // Assign the remaining bytes to our key value ending with 0x80

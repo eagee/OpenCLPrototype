@@ -4,3 +4,17 @@
 *.lib
 /QtOpenCL.log
 /vc120.pdb
+/qclbuffer.obj
+/qclcontext.obj
+/qcldevice.obj
+/qclevent.obj
+/qclimage.obj
+/qclimageformat.obj
+/qclkernel.obj
+/qclmemoryobject.obj
+/qclplatform.obj
+/qclprogram.obj
+/qclsampler.obj
+/qcluserevent.obj
+/qclvector.obj
+/qclworksize.obj

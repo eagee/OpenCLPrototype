@@ -169,7 +169,7 @@ void CPUScanWorker::processResults()
         {
             emit infectionFound(m_filesToScan.at(index));
         }
-        qDebug() << "Hash for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
+        //qDebug() << "Hash for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
     }
 }
 
