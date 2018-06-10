@@ -1,4 +1,5 @@
 #include"CPUScanWorker.h"
+#include <QCryptographicHash>
 #include <QMutex>
 #include <QThread>
 #include <QDebug>
@@ -56,7 +57,7 @@ CPUScanWorker::~CPUScanWorker()
     if(m_buffersCreated == true)
     {
         m_fileDataBuffer.clear();
-        m_hostResultData.release();
+        m_hostResultData.clear();
     }
 }
 
@@ -133,7 +134,7 @@ bool CPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
 
     m_fileDataBuffer.resize((m_bytesPerFile * m_maxFiles));
     m_dataSizeBuffer = m_bytesPerFile;
-    m_hostResultData.reset(new int[m_maxFiles]);
+    m_hostResultData.clear();
 
     m_buffersCreated = true;
 
@@ -161,11 +162,14 @@ void CPUScanWorker::processResults()
     // Iterate through the host result data and see if we've got a matching checksum
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
-        if (m_hostResultData[index] == 14330 || m_hostResultData[index] == 5974)
+        if (m_hostResultData[index] == "95e78b5b9da5d0feb5c4ab5a516608e9" || 
+            m_hostResultData[index] == "8448a87b66e10f80be542f1650208f12" ||
+            m_hostResultData[index] == "f42a7d487de3a5bd7deb18c933aa3d5e" || 
+            m_hostResultData[index] == "8ea6592c4f1e8b766e8e6a5861bf5b19")
         {
             emit infectionFound(m_filesToScan.at(index));
         }
-        //qDebug() << "Checksum for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
+        qDebug() << "Hash for " << m_filesToScan.at(index) << ": " << m_hostResultData[index];
     }
 }
 
@@ -188,9 +192,9 @@ void CPUScanWorker::executeKernelOperation()
     }
 }
 
-void CPUScanWorker::OnProcessingComplete(int fileIndex, int checksum)
+void CPUScanWorker::OnProcessingComplete(int fileIndex, QString md5)
 {
-    m_hostResultData[fileIndex] = checksum;
+    m_hostResultData[fileIndex] = md5;
     m_pendingWorkItems++;
     if (m_pendingWorkItems >= m_filesToScan.count())
     {
@@ -206,13 +210,19 @@ CPUKernelRunnable::CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, 
 
 }
 
+
+
 void CPUKernelRunnable::run()
 {
-    int outputChecksum = 0;
+    generateMd5();
+}
+
+void CPUKernelRunnable::generateMd5()
+{
     unsigned int fileOffset = m_fileIndex * m_bytesPerFile;
-    for (unsigned int checksumOffset = 0; checksumOffset < m_bytesPerFile; checksumOffset++)
-    {
-        outputChecksum += m_fileDataBuffer[fileOffset + checksumOffset];
-    }
-    emit ProcessingComplete(m_fileIndex, outputChecksum);
+    QCryptographicHash newHash(QCryptographicHash::Md5);
+    newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
+    QByteArray result = newHash.result();
+    //qDebug() << Q_FUNC_INFO << result.toHex();
+    emit ProcessingComplete(m_fileIndex, result.toHex());
 }

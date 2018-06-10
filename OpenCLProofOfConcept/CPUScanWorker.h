@@ -22,12 +22,14 @@ protected:
 
 signals:
 
-    void ProcessingComplete(int fileIndex, int checksum);
+    void ProcessingComplete(int fileIndex, QString md5);
 
 private:
     QByteArray &m_fileDataBuffer;
     int m_fileIndex;
     unsigned int m_bytesPerFile;
+
+    void generateMd5();
 };
 
 
@@ -79,7 +81,7 @@ public slots:
         setState(ScanWorkerState::Complete);
     }
 
-    void OnProcessingComplete(int fileIndex, int checksum);
+    void OnProcessingComplete(int fileIndex, QString md5);
 
 signals:
     void stateChanged(void *scanWorkerPtr);
@@ -93,7 +95,7 @@ private:
     unsigned int m_bytesPerFile;
     QByteArray m_fileDataBuffer;
     unsigned int m_dataSizeBuffer;
-    std::unique_ptr<int[]> m_hostResultData;
+    QMap<int, QString> m_hostResultData;
     static OpenClProgram m_openClProgram;
     int m_pendingWorkItems;
 
