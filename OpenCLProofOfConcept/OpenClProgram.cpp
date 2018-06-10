@@ -102,6 +102,30 @@ void OpenClProgram::ReleaseBuffer(cl_mem &buffer)
     clReleaseMemObject(buffer);
 }
 
+void* OpenClProgram::MapBuffer(cl_mem &buffer, cl_map_flags flags, size_t sizeInBytes)
+{
+    // We map a buffer between host and GPU using this command (which is supposed to be faster than the standard
+    // write operations). Once the mapped buffer is populated we unmap it before setting the kernel arguments.
+    int errorCode = 0;
+    return clEnqueueMapBuffer(m_commandQueue, buffer, CL_TRUE, flags, 0, sizeInBytes, 0, NULL, NULL, &errorCode);
+    if (errorCode < CL_SUCCESS)
+    {
+        qDebug() << Q_FUNC_INFO << " Failed to map cl_mem file buffer with error code: " << errorName(errorCode);
+    }
+}
+
+void OpenClProgram::UnMapBuffer(cl_mem &buffer, void *mappedPointer)
+{
+    // Unmaps a buffer, we should perform this once we're sure the buffer is full (if it's an input buffer)
+    // or after the GPU has written to a buffer we're going to be using for an output
+    int errorCode = 0;
+    errorCode = clEnqueueUnmapMemObject(m_commandQueue, buffer, mappedPointer, 0, NULL, NULL);
+    if (errorCode < CL_SUCCESS)
+    {
+        qDebug() << Q_FUNC_INFO << " Failed to unmap cl_mem file buffer with error code: " << errorName(errorCode);
+    }
+}
+
 int OpenClProgram::ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback)
 {
     int errorCode = 0;

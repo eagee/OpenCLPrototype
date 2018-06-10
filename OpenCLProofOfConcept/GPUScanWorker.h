@@ -47,6 +47,21 @@ public:
 signals:
     void stateChanged(void *scanWorkerPtr);
 
+public slots:
+    void OnSetStateAvailabile()
+    {
+        setState(ScanWorkerState::Available);
+    }
+
+    void OnSetStateReady()
+    {
+        setState(ScanWorkerState::Ready);
+    }
+
+    void OnSetStateComplete()
+    {
+        setState(ScanWorkerState::Complete);
+    }
 
 private:
     OperationType m_nextOperation;
@@ -55,7 +70,8 @@ private:
     bool m_buffersCreated;
     int m_maxFiles;
     size_t m_bytesPerFile;
-    cl_mem m_fileDataBuffer;
+    char* m_mappedHostFileData;
+    cl_mem m_gpuFileDataBuffer;
     cl_mem m_dataSizeBuffer;
     cl_mem m_outputBuffer;
     cl_event m_gpuFinishedEvent;

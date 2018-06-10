@@ -31,7 +31,7 @@ const QFileInfo* ScanWorkManager::GetNextFile()
         // Atomic increment to the next index in the file list
         while (!CanProcessFile(nextFile->filePath()))
         {
-            if (*m_fileIndex > m_filesToScan->count() - 1)
+            if ((*m_fileIndex + 1) > m_filesToScan->count() - 1)
             {
                 break;
             }
@@ -68,8 +68,8 @@ void ScanWorkManager::InitWorkers()
         {
             CPUScanWorker *newCpuProgram = new CPUScanWorker(this);
             newCpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
-            QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged, Qt::DirectConnection);
-            QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound, Qt::DirectConnection);
+            QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
+            QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
             m_programPool.push_back(newCpuProgram);
         }
     }
@@ -95,6 +95,8 @@ void ScanWorkManager::doWork()
     QEventLoop eventLoop;
     QObject::connect(this, &ScanWorkManager::workFinished, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
+
+    m_programPool.clear();
 }
 
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)

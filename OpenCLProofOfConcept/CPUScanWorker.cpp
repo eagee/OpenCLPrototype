@@ -55,7 +55,8 @@ CPUScanWorker::~CPUScanWorker()
 {
     if(m_buffersCreated == true)
     {
-        // DO we need to clear QByteArrays? I don't think wso....
+        m_fileDataBuffer.clear();
+        m_hostResultData.release();
     }
 }
 

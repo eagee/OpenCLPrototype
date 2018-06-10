@@ -48,6 +48,11 @@ public:
 
     Q_INVOKABLE void ReleaseBuffer(cl_mem &buffer);
 
+    //CL_MAP_WRITE | CL_MAP_READ
+    Q_INVOKABLE void* MapBuffer(cl_mem &buffer, cl_map_flags flags, size_t sizeInBytes);
+
+    Q_INVOKABLE void UnMapBuffer(cl_mem &buffer, void *mappedPointer);
+
     Q_INVOKABLE int ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback);
 
     Q_INVOKABLE QString programFileName() const;

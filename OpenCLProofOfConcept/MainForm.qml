@@ -80,7 +80,7 @@ Rectangle {
 
         RowLayout {
             spacing: 10
-            visible: testScannerModel.itemsScanned > 0
+            //visible: testScannerModel.itemsScanned > 0
             Layout.bottomMargin: testScannerModel.running ? 0 : 20
             Text {
                 id: labelCurrentItem
@@ -135,7 +135,13 @@ Rectangle {
             indeterminate: false
             Layout.fillWidth: true
             Layout.bottomMargin: 20
-            value: testScannerModel.scanProgress
+            value: 0
+            Connections {
+                target: testScannerModel
+                onScanProgressChanged: {
+                    scanProgress.value = testScannerModel.scanProgress;
+                }
+            }
         }
 
         Button {

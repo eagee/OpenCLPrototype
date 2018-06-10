@@ -50,8 +50,7 @@ void TestScannerListModel::runScan()
     m_itemsScanned = 0;
     m_secondsElapsed = 0;
     m_startSeconds = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
-    m_timer.start();
-
+    
     // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
     m_scanWorker = new ScanWorkManager(nullptr, m_useGPU);
     m_scanThread = new QThread();
@@ -62,6 +61,7 @@ void TestScannerListModel::runScan()
     QObject::connect(m_scanWorker, &ScanWorkManager::fileProcessingComplete, this, &TestScannerListModel::OnFileProcessingComplete);
     QObject::connect(m_scanThread, &QThread::finished, m_scanThread, &QThread::deleteLater);
     QObject::connect(m_scanWorker, &ScanWorkManager::workFinished, this, &TestScannerListModel::OnScanworkerFinished);
+    m_timer.start();
     m_scanThread->start();
     m_running = true;
     emit runningChanged();
@@ -155,6 +155,15 @@ void TestScannerListModel::OnFileProcessingComplete(QString filePath, int totalF
     m_totalItemsToScan = totalFilesToScan;
     m_currentScanObject = filePath;
     m_itemsScanned++;
+    if(m_itemsScanned >= m_totalItemsToScan)
+    {
+        m_timer.stop();
+        emit timeElapsedChanged();
+        emit totalItemsChanged();
+        emit itemsScannedChanged();
+        emit currentScanObjectChanged();
+        emit scanProgressChanged();
+    }
 }
 
 void TestScannerListModel::OnInfectionFound(QString filePath)
@@ -171,16 +180,5 @@ void TestScannerListModel::OnScanworkerFinished()
         m_scanWorker->deleteLater();
     }
     m_running = false;
-    
-    if (m_itemsScanned == m_totalItemsToScan)
-    {
-        m_timer.stop();
-        emit timeElapsedChanged();
-        emit totalItemsChanged();
-        emit itemsScannedChanged();
-        emit currentScanObjectChanged();
-        emit scanProgressChanged();
-    }
-
     emit runningChanged();
 }
