@@ -9,6 +9,28 @@
 
 class OpenClProgram;
 
+class CPUKernelRunnable : public QObject, public QRunnable
+{
+    Q_OBJECT
+
+public:
+
+    CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, unsigned int bytesPerFile);
+
+protected:
+    void run();
+
+signals:
+
+    void ProcessingComplete(int fileIndex, int checksum);
+
+private:
+    QByteArray &m_fileDataBuffer;
+    int m_fileIndex;
+    unsigned int m_bytesPerFile;
+};
+
+
 class CPUScanWorker : public IScanWorker
 {
     Q_OBJECT
@@ -57,6 +79,8 @@ public slots:
         setState(ScanWorkerState::Complete);
     }
 
+    void OnProcessingComplete(int fileIndex, int checksum);
+
 signals:
     void stateChanged(void *scanWorkerPtr);
 
@@ -66,11 +90,12 @@ private:
     QList<QString> m_filesToScan;
     bool m_buffersCreated;
     int m_maxFiles;
-    size_t m_bytesPerFile;
+    unsigned int m_bytesPerFile;
     QByteArray m_fileDataBuffer;
-    size_t m_dataSizeBuffer;
+    unsigned int m_dataSizeBuffer;
     std::unique_ptr<int[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
+    int m_pendingWorkItems;
 
     bool loadFileData(const QString &filePath);
 

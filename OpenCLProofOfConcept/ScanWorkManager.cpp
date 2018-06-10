@@ -7,20 +7,9 @@
 #include "GPUScanWorker.h"
 #include "CPUScanWorker.h"
 
-
-//#define USE_CPU
-
-#ifndef USE_CPU
-    const int BYTES_PER_FILE = 81920;
-    const int PROGRAM_POOL_SIZE = 64;
-    const int MAX_FILES_PER_PROGRAM = 256;
-#else
-    const int BYTES_PER_FILE = 40960;
-    const int PROGRAM_POOL_SIZE = 64;
-    const int MAX_FILES_PER_PROGRAM = 256;
-#endif
-
-
+const int BYTES_PER_FILE = 81920;
+const int PROGRAM_POOL_SIZE = 64;
+const int MAX_FILES_PER_PROGRAM = 256;
 
 ScanWorkManager::ScanWorkManager(QObject *parent, bool useGPU): QObject(parent), m_scanWorkersFinished(0), m_useGPU(useGPU)
 {

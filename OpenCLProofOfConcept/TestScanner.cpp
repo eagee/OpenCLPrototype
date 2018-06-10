@@ -155,15 +155,6 @@ void TestScannerListModel::OnFileProcessingComplete(QString filePath, int totalF
     m_totalItemsToScan = totalFilesToScan;
     m_currentScanObject = filePath;
     m_itemsScanned++;
-    if(m_itemsScanned == m_totalItemsToScan)
-    {
-        m_timer.stop();
-        emit timeElapsedChanged();
-        emit totalItemsChanged();
-        emit itemsScannedChanged();
-        emit currentScanObjectChanged();
-        emit scanProgressChanged();
-    }
 }
 
 void TestScannerListModel::OnInfectionFound(QString filePath)
@@ -180,5 +171,16 @@ void TestScannerListModel::OnScanworkerFinished()
         m_scanWorker->deleteLater();
     }
     m_running = false;
+    
+    if (m_itemsScanned == m_totalItemsToScan)
+    {
+        m_timer.stop();
+        emit timeElapsedChanged();
+        emit totalItemsChanged();
+        emit itemsScannedChanged();
+        emit currentScanObjectChanged();
+        emit scanProgressChanged();
+    }
+
     emit runningChanged();
 }

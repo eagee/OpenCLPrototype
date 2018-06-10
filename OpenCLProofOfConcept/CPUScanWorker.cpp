@@ -9,6 +9,7 @@ CPUScanWorker::CPUScanWorker(QObject *parent /*= nullptr*/)
 {
     m_state = ScanWorkerState::Available;
     m_bytesPerFile = 0;
+    m_pendingWorkItems = 0;
     m_buffersCreated = false;
 }
 
@@ -34,10 +35,7 @@ bool CPUScanWorker::loadFileData(const QString &filePath)
 
     unsigned int filesToScan = (m_filesToScan.size());
     unsigned int dataOffset = (filesToScan * m_bytesPerFile);
-    for(unsigned int ix = dataOffset; ix < dataOffset + m_bytesPerFile; ix++)
-    {
-        m_fileDataBuffer[ix] = clFileBufferData[ix - dataOffset];
-    }
+    m_fileDataBuffer = m_fileDataBuffer.replace(dataOffset, m_bytesPerFile, clFileBufferData);
 
     m_filesToScan.append(filePath);
 
@@ -77,7 +75,7 @@ bool CPUScanWorker::queueScanOperation()
 {
     if(m_filesToScan.size() <= 0 || (m_state != ScanWorkerState::Available && m_state != ScanWorkerState::Ready))
     {
-        qDebug() << Q_FUNC_INFO << "Scan operation called with no files to scan or worker in a bad state :(.";
+        //qDebug() << Q_FUNC_INFO << "Scan operation called with no files to scan or worker in a bad state :(.";
         return false;
     }
 
@@ -179,18 +177,41 @@ void CPUScanWorker::executeKernelOperation()
     }
 
     m_state = ScanWorkerState::Scanning;
-
+    m_pendingWorkItems = 0;
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
-        int outputChecksum = 0;
-        unsigned int fileOffset = index * m_bytesPerFile;
-        for (int checksumOffset = 0; checksumOffset < m_bytesPerFile; checksumOffset++)
-        {
-            outputChecksum += m_fileDataBuffer[fileOffset + checksumOffset];
-        }
-        m_hostResultData[index] = outputChecksum;
+        // Kick each file we want to process in our image off in a thread pool
+        CPUKernelRunnable *work = new CPUKernelRunnable(m_fileDataBuffer, index, m_bytesPerFile);
+        QObject::connect(work, &CPUKernelRunnable::ProcessingComplete, this, &CPUScanWorker::OnProcessingComplete);
+        QThreadPool::globalInstance()->start(work);
     }
-
-    QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
 }
 
+void CPUScanWorker::OnProcessingComplete(int fileIndex, int checksum)
+{
+    m_hostResultData[fileIndex] = checksum;
+    m_pendingWorkItems++;
+    if (m_pendingWorkItems >= m_filesToScan.count())
+    {
+        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
+    }
+}
+
+CPUKernelRunnable::CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, unsigned int bytesPerFile) :
+    m_fileDataBuffer(fileDataBuffer),
+    m_fileIndex(fileIndex),
+    m_bytesPerFile(bytesPerFile)
+{
+
+}
+
+void CPUKernelRunnable::run()
+{
+    int outputChecksum = 0;
+    unsigned int fileOffset = m_fileIndex * m_bytesPerFile;
+    for (unsigned int checksumOffset = 0; checksumOffset < m_bytesPerFile; checksumOffset++)
+    {
+        outputChecksum += m_fileDataBuffer[fileOffset + checksumOffset];
+    }
+    emit ProcessingComplete(m_fileIndex, outputChecksum);
+}
