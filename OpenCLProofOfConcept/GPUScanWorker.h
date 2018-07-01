@@ -85,6 +85,7 @@ private:
     cl_mem m_dataSizeBuffer;
     cl_mem m_outputBuffer;
     cl_event m_gpuFinishedEvent;
+    cl_command_queue m_commandQueue;
     std::unique_ptr<char[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
     QString m_id;

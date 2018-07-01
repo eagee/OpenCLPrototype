@@ -28,11 +28,6 @@ OpenClProgram::OpenClProgram(const QString programFileName, const QString functi
 
     if(m_errorState == ErrorState::None)
     {
-        m_errorState = createCommandQueue();
-    }
-
-    if(m_errorState == ErrorState::None)
-    {
         m_errorState = createKernel();
     }
 }
@@ -40,7 +35,6 @@ OpenClProgram::OpenClProgram(const QString programFileName, const QString functi
 OpenClProgram::~OpenClProgram()
 {
     clReleaseKernel(m_kernel);
-    clReleaseCommandQueue(m_commandQueue);
     clReleaseProgram(m_program);
     clReleaseContext(m_context);
 }
@@ -69,12 +63,12 @@ bool OpenClProgram::CreateBuffer(cl_mem &buffer, cl_mem_flags flags, size_t size
     return true;
 }
 
-bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback, bool blockThread /*= true*/)
+bool OpenClProgram::WriteBuffer(cl_command_queue &commandQueue, cl_mem &buffer, size_t offset, size_t sizeInBytes, const void *data, cl_event *eventCallback, bool blockThread /*= true*/)
 {
     int errorCode = 0;
     // Perform a non-blocking write operation that will trigger eventCallback when it's complete
     cl_bool useBlockingOperation = (blockThread == true) ? CL_TRUE : CL_FALSE;
-    errorCode = clEnqueueWriteBuffer(m_commandQueue, buffer, useBlockingOperation, offset, sizeInBytes, data, NULL, nullptr, eventCallback);
+    errorCode = clEnqueueWriteBuffer(commandQueue, buffer, useBlockingOperation, offset, sizeInBytes, data, NULL, nullptr, eventCallback);
     if (errorCode < CL_SUCCESS)
     {
         qDebug() << Q_FUNC_INFO << " Failed to write cl_mem file buffer with error code: " << errorName(errorCode);
@@ -83,13 +77,13 @@ bool OpenClProgram::WriteBuffer(cl_mem &buffer, size_t offset, size_t sizeInByte
     return true;
 }
 
-Q_INVOKABLE bool OpenClProgram::ReadBuffer(cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback, bool blockThread /*= true*/)
+Q_INVOKABLE bool OpenClProgram::ReadBuffer(cl_command_queue &commandQueue, cl_mem &buffer, size_t offset, size_t sizeInBytes, void *data, cl_event *eventCallback, bool blockThread /*= true*/)
 {
     Q_UNUSED(eventCallback);
     Q_UNUSED(offset);
 
     cl_bool useBlockingOperation = (blockThread == true) ? CL_TRUE : CL_FALSE;
-    cl_int errorCode = clEnqueueReadBuffer(m_commandQueue, buffer, useBlockingOperation, 0, sizeInBytes, data, 0, NULL, eventCallback);
+    cl_int errorCode = clEnqueueReadBuffer(commandQueue, buffer, useBlockingOperation, 0, sizeInBytes, data, 0, NULL, eventCallback);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to read output buffer with error code: " << errorName(errorCode);
         return false;
@@ -103,35 +97,35 @@ void OpenClProgram::ReleaseBuffer(cl_mem &buffer)
     clReleaseMemObject(buffer);
 }
 
-void* OpenClProgram::MapBuffer(cl_mem &buffer, cl_map_flags flags, size_t sizeInBytes)
+void* OpenClProgram::MapBuffer(cl_command_queue &commandQueue, cl_mem &buffer, cl_map_flags flags, size_t sizeInBytes)
 {
     // We map a buffer between host and GPU using this command (which is supposed to be faster than the standard
     // write operations). Once the mapped buffer is populated we unmap it before setting the kernel arguments.
     int errorCode = 0;
-    return clEnqueueMapBuffer(m_commandQueue, buffer, CL_TRUE, flags, 0, sizeInBytes, 0, NULL, NULL, &errorCode);
+    return clEnqueueMapBuffer(commandQueue, buffer, CL_TRUE, flags, 0, sizeInBytes, 0, NULL, NULL, &errorCode);
     if (errorCode < CL_SUCCESS)
     {
         qDebug() << Q_FUNC_INFO << " Failed to map cl_mem file buffer with error code: " << errorName(errorCode);
     }
 }
 
-void OpenClProgram::UnMapBuffer(cl_mem &buffer, void *mappedPointer)
+void OpenClProgram::UnMapBuffer(cl_command_queue &commandQueue, cl_mem &buffer, void *mappedPointer)
 {
     // Unmaps a buffer, we should perform this once we're sure the buffer is full (if it's an input buffer)
     // or after the GPU has written to a buffer we're going to be using for an output
     int errorCode = 0;
-    errorCode = clEnqueueUnmapMemObject(m_commandQueue, buffer, mappedPointer, 0, NULL, NULL);
+    errorCode = clEnqueueUnmapMemObject(commandQueue, buffer, mappedPointer, 0, NULL, NULL);
     if (errorCode < CL_SUCCESS)
     {
         qDebug() << Q_FUNC_INFO << " Failed to unmap cl_mem file buffer with error code: " << errorName(errorCode);
     }
 }
 
-int OpenClProgram::ExecuteKernel(const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback)
+int OpenClProgram::ExecuteKernel(cl_command_queue &commandQueue, const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback)
 {
     int errorCode = 0;
     ///using NULL instead of &computeGroupSize* allows openCL to determine the optimal work group size.
-    errorCode = clEnqueueNDRangeKernel(m_commandQueue, m_kernel, 1, NULL, &workItemCount, NULL, 0, NULL, eventCallback);
+    errorCode = clEnqueueNDRangeKernel(commandQueue, m_kernel, 1, NULL, &workItemCount, NULL, 0, NULL, eventCallback);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to enqueue kernel with error code: " << errorName(errorCode);
         return false;
@@ -249,23 +243,28 @@ OpenClProgram::ErrorState::enum_type OpenClProgram::buildOpenClProgram()
         programLog.resize(buildLogSize + 1);
         char *data = programLog.data();
         clGetProgramBuildInfo(m_program, m_deviceID, CL_PROGRAM_BUILD_LOG, buildLogSize + 1, data, NULL);
-        qCritical() << Q_FUNC_INFO << "Failed to create program!" << QString::fromStdString(programLog.toStdString());
+        qCritical() << Q_FUNC_INFO << "Failed to create program!\n\n" << QString::fromStdString(programLog.toStdString()) << "\n\n";
         return ErrorState::CompilationError;
     }
     
     return ErrorState::None;
 }
 
-OpenClProgram::ErrorState::enum_type OpenClProgram::createCommandQueue()
+bool OpenClProgram::createCommandQueue(cl_command_queue &commandQueue)
 {
     int errorCode = 0;
-    m_commandQueue = clCreateCommandQueue(m_context, m_deviceID, 0, &errorCode);
+    commandQueue = clCreateCommandQueue(m_context, m_deviceID, 0, &errorCode);
     if (errorCode< 0) {
         qCritical() << Q_FUNC_INFO << "Failed to create command queue!";
-        return ErrorState::CommandQueueError;
+        return false;
     };
     
-    return ErrorState::None;
+    return true;
+}
+
+Q_INVOKABLE void OpenClProgram::freeCommandQueue(cl_command_queue &commandQueue)
+{
+    clReleaseCommandQueue(commandQueue);
 }
 
 OpenClProgram::ErrorState::enum_type OpenClProgram::createKernel()

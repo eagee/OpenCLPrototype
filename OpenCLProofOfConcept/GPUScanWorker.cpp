@@ -42,7 +42,7 @@ bool GPUScanWorker::loadFileData(const QString &filePath)
     // memcpy(&m_mappedHostFileData[dataOffset], clFileBufferData.data(), m_bytesPerFile);
     // m_openClProgram.UnMapBuffer(m_gpuFileDataBuffer, m_mappedHostFileData);
     
-    if (!m_openClProgram.WriteBuffer(m_gpuFileDataBuffer, dataOffset, m_bytesPerFile, clFileBufferData.data(), &m_gpuFinishedEvent, false)) //&m_gpuFinishedEvent
+    if (!m_openClProgram.WriteBuffer(m_commandQueue, m_gpuFileDataBuffer, dataOffset, m_bytesPerFile, clFileBufferData.data(), &m_gpuFinishedEvent, false)) //&m_gpuFinishedEvent
     {
         qDebug() << Q_FUNC_INFO << "Unable to write file buffer to GPU: " << filePath;
         return false;
@@ -145,7 +145,7 @@ void GPUScanWorker::run()
 void GPUScanWorker::readResultsFromGPU()
 {
     m_state = ScanWorkerState::ReadingResults;
-    bool success = m_openClProgram.ReadBuffer(m_outputBuffer, 0, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), m_hostResultData.get(), &m_gpuFinishedEvent, false);
+    bool success = m_openClProgram.ReadBuffer(m_commandQueue, m_outputBuffer, 0, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), m_hostResultData.get(), &m_gpuFinishedEvent, false);
     if (!success)
     {
         setState(ScanWorkerState::Error);
@@ -177,6 +177,8 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
 
     bool success = false;
 
+    success = m_openClProgram.createCommandQueue(m_commandQueue);
+
     // Create a buffer that will be mapped between host and gpu for read/write operations (this will allow us to build the file
     // contents until the buffer is full on the host, and then we can unmap before the kernel executs, and remap when buffers are reset.
     success = m_openClProgram.CreateBuffer(m_gpuFileDataBuffer, CL_MEM_READ_ONLY, (m_bytesPerFile * m_maxFiles), nullptr);
@@ -197,7 +199,7 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
     }
 
     // Write to the above buffer confirming how much data we have to process
-    success = m_openClProgram.WriteBuffer(m_dataSizeBuffer, 0, sizeof(size_t), &m_bytesPerFile, nullptr);
+    success = m_openClProgram.WriteBuffer(m_commandQueue, m_dataSizeBuffer, 0, sizeof(size_t), &m_bytesPerFile, nullptr);
     if (!success)
     {
         m_state = ScanWorkerState::Error;
@@ -295,7 +297,7 @@ void GPUScanWorker::executeKernelOperation()
 
     // Now if we kick off our kernel operation it'll process all of the files we've enqueued and send us an event when it's
     // done that we can use to read out the contents of the output buffer when it's done.
-    int result = m_openClProgram.ExecuteKernel(workItemSize, workGroupSize, &m_gpuFinishedEvent);
+    int result = m_openClProgram.ExecuteKernel(m_commandQueue, workItemSize, workGroupSize, &m_gpuFinishedEvent);
     if( result != CL_SUCCESS)
     {
         m_state = ScanWorkerState::Error;
