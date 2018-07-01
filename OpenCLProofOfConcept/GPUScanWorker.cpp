@@ -8,8 +8,8 @@
 
 OpenClProgram GPUScanWorker::m_openClProgram("createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
 
-GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/)
-    : IScanWorker(parent)
+GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/, QString id)
+    : IScanWorker(parent), m_id(id)
 {
     m_state = ScanWorkerState::Available;
     m_bytesPerFile = 0;
@@ -81,6 +81,11 @@ GPUScanWorker::~GPUScanWorker()
     }
 }
 
+QString GPUScanWorker::id()
+{
+    return m_id;
+}
+
 bool GPUScanWorker::queueLoadOperation(QString filePath) 
 {
     if(areBuffersFull() == true || m_state == ScanWorkerState::Ready)
@@ -98,6 +103,7 @@ bool GPUScanWorker::queueScanOperation()
     if(m_filesToScan.size() <= 0 || (m_state != ScanWorkerState::Available && m_state != ScanWorkerState::Ready))
     {
         //qDebug() << Q_FUNC_INFO << "Scan operation called with no files to scan.";
+        QTimer::singleShot(0, this, &GPUScanWorker::OnSetStateDone);
         return false;
     }
 

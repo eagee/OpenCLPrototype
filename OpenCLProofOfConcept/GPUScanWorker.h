@@ -18,9 +18,11 @@ class GPUScanWorker : public IScanWorker
 
 public:
 
-    GPUScanWorker(QObject *parent = nullptr);
+    GPUScanWorker(QObject *parent = nullptr, QString id = "");
 
     ~GPUScanWorker();
+
+    virtual QString id() override;
 
     virtual bool queueLoadOperation(QString filePath) override;
 
@@ -66,6 +68,11 @@ public slots:
         setState(ScanWorkerState::Complete);
     }
 
+    void OnSetStateDone()
+    {
+        setState(ScanWorkerState::Done);
+    }
+
 private:
     OperationType m_nextOperation;
     ScanWorkerState::enum_type m_state;
@@ -80,6 +87,7 @@ private:
     cl_event m_gpuFinishedEvent;
     std::unique_ptr<char[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
+    QString m_id;
 
     bool loadFileData(const QString &filePath);
 

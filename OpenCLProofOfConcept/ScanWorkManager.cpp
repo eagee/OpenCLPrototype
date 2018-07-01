@@ -7,7 +7,7 @@
 #include "GPUScanWorker.h"
 #include "CPUScanWorker.h"
 
-const int BYTES_PER_FILE = 81920;
+const int BYTES_PER_FILE = 8192;
 const int PROGRAM_POOL_SIZE = 64;
 const int MAX_FILES_PER_PROGRAM = 256;
 
@@ -56,9 +56,12 @@ void ScanWorkManager::InitWorkers()
     // Set up our pool of worker objects
     for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
     {
+        QString id = QString("%1").arg(ix, 5, 10, QChar('0'));
+        
+        //if(ix % 2 == 0)
         if (m_useGPU)
         {
-            GPUScanWorker *newGpuProgram = new GPUScanWorker(this);
+            GPUScanWorker *newGpuProgram = new GPUScanWorker(this, id);
             newGpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
             QObject::connect(newGpuProgram, &GPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
             QObject::connect(newGpuProgram, &GPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
@@ -66,7 +69,7 @@ void ScanWorkManager::InitWorkers()
         }
         else 
         {
-            CPUScanWorker *newCpuProgram = new CPUScanWorker(this);
+            CPUScanWorker *newCpuProgram = new CPUScanWorker(this, id);
             newCpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
             QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
             QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
@@ -103,7 +106,7 @@ void ScanWorkManager::doWork()
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 {
     GPUScanWorker *scanWorker = static_cast<GPUScanWorker*>(scanWorkerPtr);
-    //qDebug() << Q_FUNC_INFO << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
+    qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
     
     // If the state of the worker is Available and there are more files to scan we'll queue the next file
     if (scanWorker->state() == ScanWorkerState::Available)
@@ -114,14 +117,17 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
             scanWorker->queueLoadOperation(nextFile->filePath());
             QThreadPool::globalInstance()->start(scanWorker);
         }
-        else {
-            QueueAndRunScanWorker(scanWorker);
+        else 
+        {
+            if(scanWorker->queueScanOperation())
+                QThreadPool::globalInstance()->start(scanWorker);
         }
     }
     // If the state of the worker is Ready we'll queue a scan operation to run on the worker
     else if (scanWorker->state() == ScanWorkerState::Ready)
     {
-        QueueAndRunScanWorker(scanWorker);
+        if (scanWorker->queueScanOperation())
+            QThreadPool::globalInstance()->start(scanWorker);
     }
     // If the state of the worker is Complete we'll queue a read results operation
     // Once this is done the worker should signal us again with an available state
@@ -129,6 +135,14 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
     {
         scanWorker->queueReadOperation();
         QThreadPool::globalInstance()->start(scanWorker);
+    }
+    else if (scanWorker->state() == ScanWorkerState::Done)
+    {
+        m_scanWorkersFinished++;
+        if (m_scanWorkersFinished >= PROGRAM_POOL_SIZE)
+        {
+            emit workFinished();
+        }
     }
     else
     {
@@ -139,18 +153,8 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 
 void ScanWorkManager::QueueAndRunScanWorker(IScanWorker *scanWorker)
 {
-    if (scanWorker->queueScanOperation())
-    {
-        QThreadPool::globalInstance()->start(scanWorker);
-    }
-    else
-    {
-        m_scanWorkersFinished++;
-        if (m_scanWorkersFinished >= PROGRAM_POOL_SIZE)
-        {
-            emit workFinished();
-        }
-    }
+    scanWorker->queueScanOperation();
+    QThreadPool::globalInstance()->start(scanWorker);
 }
 
 void ScanWorkManager::OnInfectionFound(QString filePath)

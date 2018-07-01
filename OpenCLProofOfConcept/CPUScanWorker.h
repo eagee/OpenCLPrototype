@@ -39,9 +39,11 @@ class CPUScanWorker : public IScanWorker
 
 public:
 
-    CPUScanWorker(QObject *parent = nullptr);
+    CPUScanWorker(QObject *parent = nullptr, QString id = "");
 
     ~CPUScanWorker();
+
+    virtual QString id() override;
 
     virtual bool queueLoadOperation(QString filePath) override;
 
@@ -98,6 +100,7 @@ private:
     QMap<int, QString> m_hostResultData;
     static OpenClProgram m_openClProgram;
     int m_pendingWorkItems;
+    QString m_id;
 
     bool loadFileData(const QString &filePath);
 

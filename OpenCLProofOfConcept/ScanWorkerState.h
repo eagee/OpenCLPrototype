@@ -9,7 +9,8 @@ struct ScanWorkerState
         Scanning,
         ReadingResults,
         Complete,
-        Error
+        Error,
+        Done
     };
 
     static QString ToString(ScanWorkerState::enum_type type);

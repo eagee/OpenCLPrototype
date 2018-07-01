@@ -29,6 +29,8 @@ public:
 
     virtual ~IScanWorker() { }
 
+    virtual QString id() = 0;
+
     virtual bool queueLoadOperation(QString filePath) = 0;
 
     virtual bool queueScanOperation() = 0;

@@ -5,8 +5,8 @@
 #include <QDebug>
 #include "OpenClProgram.h"
 
-CPUScanWorker::CPUScanWorker(QObject *parent /*= nullptr*/)
-    : IScanWorker(parent)
+CPUScanWorker::CPUScanWorker(QObject *parent /*= nullptr*/, QString id)
+    : IScanWorker(parent), m_id(id)
 {
     m_state = ScanWorkerState::Available;
     m_bytesPerFile = 0;
@@ -59,6 +59,11 @@ CPUScanWorker::~CPUScanWorker()
         m_fileDataBuffer.clear();
         m_hostResultData.clear();
     }
+}
+
+QString CPUScanWorker::id()
+{
+    return m_id;
 }
 
 bool CPUScanWorker::queueLoadOperation(QString filePath)
