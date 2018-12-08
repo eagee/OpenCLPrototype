@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QDebug>
 #include "OpenClProgram.h"
+#include <chrono>
 
 #define BYTES_INTS_IN_MD5_HASH 16
 
@@ -242,6 +243,8 @@ int GPUScanWorker::queuedFileCount() const
 
 void GPUScanWorker::processResults()
 {
+    m_finishTime = std::chrono::high_resolution_clock::now();
+    printTotalTime();
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
         QByteArray hash;
@@ -259,6 +262,12 @@ void GPUScanWorker::processResults()
     }
 }
 
+void GPUScanWorker::printTotalTime()
+{
+    std::chrono::duration<double> elapsed = m_finishTime - m_startTime;
+    qDebug() << Q_FUNC_INFO << " GPU Total execution time: " << elapsed.count();
+}
+
 void GPUScanWorker::executeKernelOperation()
 {
     if(!m_buffersCreated)
@@ -271,6 +280,8 @@ void GPUScanWorker::executeKernelOperation()
     // as other threads.
     QMutex mutex;
     QMutexLocker locker(&mutex);
+
+    m_startTime = std::chrono::high_resolution_clock::now();
 
     // Set our kernel arguments
     if(!m_openClProgram.SetKernelArg(0, sizeof(cl_mem), m_gpuFileDataBuffer))

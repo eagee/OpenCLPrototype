@@ -17,6 +17,8 @@ public:
 
     CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, unsigned int bytesPerFile);
 
+    void runWithoutThreadPool();
+
 protected:
     void run();
 

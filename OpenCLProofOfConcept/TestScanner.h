@@ -20,6 +20,7 @@ class TestScannerListModel : public QAbstractListModel
     Q_PROPERTY(QString timeElapsed READ timeElapsed NOTIFY timeElapsedChanged)
     Q_PROPERTY(qreal scanProgress READ scanProgress NOTIFY scanProgressChanged)
     Q_PROPERTY(bool useGPU READ useGPU WRITE setUseGPU NOTIFY useGPUChanged)
+    Q_PROPERTY(bool useBoth READ useBoth WRITE setUseBoth NOTIFY useBothChanged)
     Q_PROPERTY(bool running READ running NOTIFY runningChanged)
 
 public:
@@ -36,6 +37,10 @@ public:
     bool useGPU();
 
     void setUseGPU(bool value);
+
+    bool useBoth();
+
+    void setUseBoth(bool value);
 
     int totalItems();
 
@@ -64,6 +69,7 @@ signals:
     void timeElapsedChanged();
     void scanProgressChanged();
     void useGPUChanged();
+    void useBothChanged();
     void runningChanged();
 
 public slots:
@@ -83,6 +89,7 @@ private:
     QDateTime m_startTime;
     QTimer m_timer;
     bool m_useGPU;
+    bool m_useBoth;
     bool m_running;
 
     QString getTimeElapsedString(int secondsElapsed);

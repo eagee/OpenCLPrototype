@@ -3,6 +3,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QDebug>
+#include <chrono>
 #include "OpenClProgram.h"
 
 CPUScanWorker::CPUScanWorker(QObject *parent /*= nullptr*/, QString id)
@@ -188,13 +189,25 @@ void CPUScanWorker::executeKernelOperation()
 
     m_state = ScanWorkerState::Scanning;
     m_pendingWorkItems = 0;
+    
+    auto start = std::chrono::high_resolution_clock::now();
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
         // Kick each file we want to process in our image off in a thread pool
-        CPUKernelRunnable *work = new CPUKernelRunnable(m_fileDataBuffer, index, m_bytesPerFile);
-        QObject::connect(work, &CPUKernelRunnable::ProcessingComplete, this, &CPUScanWorker::OnProcessingComplete);
-        QThreadPool::globalInstance()->start(work);
+        //CPUKernelRunnable *work = new CPUKernelRunnable(m_fileDataBuffer, index, m_bytesPerFile);
+        //QObject::connect(work, &CPUKernelRunnable::ProcessingComplete, this, &CPUScanWorker::OnProcessingComplete);
+        //QThreadPool::globalInstance()->start(work);
+        //work->runWithoutThreadPool();
+
+        unsigned int fileOffset = index * m_bytesPerFile;
+        QCryptographicHash newHash(QCryptographicHash::Md5);
+        newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
+        QByteArray result = newHash.result();
+        OnProcessingComplete(index, result.toHex());
     }
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    qDebug() << Q_FUNC_INFO << " CPU Total execution time: " << elapsed.count();
 }
 
 void CPUScanWorker::OnProcessingComplete(int fileIndex, QString md5)
@@ -215,7 +228,10 @@ CPUKernelRunnable::CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, 
 
 }
 
-
+void CPUKernelRunnable::runWithoutThreadPool()
+{
+    generateMd5();
+}
 
 void CPUKernelRunnable::run()
 {

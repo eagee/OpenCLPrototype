@@ -9,6 +9,7 @@
 #include <qclcontext.h>
 #include <qclbuffer.h>
 #include <qclvector.h>
+#include <chrono>
 
 class OpenClProgram;
 
@@ -49,6 +50,8 @@ public:
 
     virtual void processResults() override;
 
+    void printTotalTime();
+
 signals:
     void stateChanged(void *scanWorkerPtr);
 
@@ -86,6 +89,8 @@ private:
     cl_mem m_outputBuffer;
     cl_event m_gpuFinishedEvent;
     cl_command_queue m_commandQueue;
+    std::chrono::steady_clock::time_point m_startTime;
+    std::chrono::steady_clock::time_point m_finishTime;
     std::unique_ptr<char[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
     QString m_id;

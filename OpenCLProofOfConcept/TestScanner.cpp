@@ -16,6 +16,7 @@ TestScannerListModel::TestScannerListModel(QObject *parent): QAbstractListModel(
     m_totalItemsToScan(0),
     m_startTime(QDateTime::currentDateTime()),
     m_useGPU(false),
+    m_useBoth(false),
     m_running(false)
 {
     m_currentScanObject = ""; // m_filesToScan.at(0).absoluteFilePath();
@@ -45,6 +46,16 @@ void TestScannerListModel::setUseGPU(bool value)
     emit useGPUChanged();
 }
 
+bool TestScannerListModel::useBoth()
+{
+    return m_useBoth;
+}
+
+void TestScannerListModel::setUseBoth(bool value)
+{
+    m_useBoth = value;
+}
+
 void TestScannerListModel::runScan()
 {
     m_itemsScanned = 0;
@@ -52,7 +63,7 @@ void TestScannerListModel::runScan()
     m_startSeconds = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     
     // Set up our scan work manager so that it runs all of it's operations on another thread using it's own event loop
-    m_scanWorker = new ScanWorkManager(nullptr, m_useGPU);
+    m_scanWorker = new ScanWorkManager(nullptr, m_useGPU, m_useBoth);
     m_scanThread = new QThread();
     m_scanWorker->moveToThread(m_scanThread);
     QObject::connect(m_scanThread, &QThread::started, m_scanWorker, &ScanWorkManager::doWork);

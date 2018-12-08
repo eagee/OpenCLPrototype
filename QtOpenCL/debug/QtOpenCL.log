@@ -1,17 +1,65 @@
-﻿  qclbuffer.cpp
+﻿  Generate moc_predefs.h
+  qclbuffer.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(615): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(616): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(701): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(702): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
   qclcommandqueue.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclcontext.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qcldevice.cpp
   qclevent.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclimage.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(224): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(225): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(274): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(275): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(301): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(302): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(351): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(352): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(377): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(378): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(379): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(406): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(407): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(434): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(435): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(465): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(466): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(467): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(495): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(496): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(524): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(525): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(556): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(557): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(592): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(593): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1097): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1098): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1194): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1195): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
   qclimageformat.cpp
   qclkernel.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclkernel.cpp(654): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclkernel.cpp(670): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclmemoryobject.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclplatform.cpp
   qclprogram.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclsampler.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qcluserevent.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclvector.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
   qclworksize.cpp
   Generating Code...
   QtOpenCL.vcxproj -> Q:\MBAM\OpenCL\QtOpenCL\..\lib\Win32\Debug\QtOpenCL.lib

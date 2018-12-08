@@ -11,7 +11,8 @@ const int BYTES_PER_FILE = 8192;
 const int PROGRAM_POOL_SIZE = 64;
 const int MAX_FILES_PER_PROGRAM = 256;
 
-ScanWorkManager::ScanWorkManager(QObject *parent, bool useGPU): QObject(parent), m_scanWorkersFinished(0), m_useGPU(useGPU)
+ScanWorkManager::ScanWorkManager(QObject *parent, bool useGPU, bool useBoth): QObject(parent), 
+m_scanWorkersFinished(0), m_useGPU(useGPU), m_useBoth(useBoth)
 {
 }
 
@@ -49,9 +50,12 @@ void ScanWorkManager::InitWorkers()
 {
     m_fileIndex.reset(new QAtomicInt(0));
 
+    const int MAX_GPU_IN_BOTH = 2;
+    int gpuWorkersCreated = 0;
+
     QDir testDir("C:\\TestFiles");
     m_filesToScan.reset(new QFileInfoList(testDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst)));
-    qDebug() << Q_FUNC_INFO << " Preparing to scan this many files: " << m_filesToScan->count();
+    //qDebug() << Q_FUNC_INFO << " Preparing to scan this many files: " << m_filesToScan->count();
 
     // Set up our pool of worker objects
     for (int ix = 0; ix < PROGRAM_POOL_SIZE; ix++)
@@ -59,7 +63,27 @@ void ScanWorkManager::InitWorkers()
         QString id = QString("%1").arg(ix, 5, 10, QChar('0'));
         
         //if(ix % 2 == 0)
-        if (m_useGPU)
+        if (m_useBoth)
+        {
+            if (gpuWorkersCreated < MAX_GPU_IN_BOTH)
+            {
+                GPUScanWorker *newGpuProgram = new GPUScanWorker(this, id);
+                newGpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
+                QObject::connect(newGpuProgram, &GPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
+                QObject::connect(newGpuProgram, &GPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
+                m_programPool.push_back(newGpuProgram);
+                gpuWorkersCreated++;
+            }
+            else
+            {
+                CPUScanWorker *newCpuProgram = new CPUScanWorker(this, id);
+                newCpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
+                QObject::connect(newCpuProgram, &CPUScanWorker::stateChanged, this, &ScanWorkManager::OnStateChanged);
+                QObject::connect(newCpuProgram, &CPUScanWorker::infectionFound, this, &ScanWorkManager::OnInfectionFound);
+                m_programPool.push_back(newCpuProgram);
+            }
+        }
+        else if (m_useGPU)
         {
             GPUScanWorker *newGpuProgram = new GPUScanWorker(this, id);
             newGpuProgram->createFileBuffers(BYTES_PER_FILE, MAX_FILES_PER_PROGRAM);
@@ -106,7 +130,7 @@ void ScanWorkManager::doWork()
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 {
     GPUScanWorker *scanWorker = static_cast<GPUScanWorker*>(scanWorkerPtr);
-    qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
+    //qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
     
     // If the state of the worker is Available and there are more files to scan we'll queue the next file
     if (scanWorker->state() == ScanWorkerState::Available)

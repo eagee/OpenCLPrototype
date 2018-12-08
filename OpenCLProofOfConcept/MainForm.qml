@@ -72,6 +72,17 @@ Rectangle {
                 }
             }
 
+            CheckBox {
+                id: checkUseBothGPUandCPU
+                text: qsTr("Use GPU and CPU")
+                checked: testScannerModel.useBoth
+                enabled: checkUseGPU.checked
+                Layout.alignment: Qt.AlignLeft
+                onCheckedChanged: {
+                    testScannerModel.useGPU = checkUseGPU.checked;
+                }
+            }
+
             Rectangle {
                 Layout.preferredWidth: 500
                 Layout.fillWidth: true

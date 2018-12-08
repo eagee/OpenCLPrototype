@@ -16,7 +16,7 @@ class ScanWorkManager : public QObject
 
 public:
 
-    ScanWorkManager(QObject *parent = nullptr, bool useGPU = false);
+    ScanWorkManager(QObject *parent = nullptr, bool useGPU = false, bool useBoth = false);
     int totalFilesToScan();
 
 signals:
@@ -39,6 +39,7 @@ private:
     QScopedPointer<QAtomicInt> m_fileIndex;
     QAtomicInt m_scanWorkersFinished;
     bool m_useGPU;
+    bool m_useBoth;
 
     bool CanProcessFile(QString filePath);
     const QFileInfo* GetNextFile();
