@@ -6,9 +6,7 @@
 #include <QtCore>
 #include <QByteArray>
 #include <QVector>
-#include <qclcontext.h>
-#include <qclbuffer.h>
-#include <qclvector.h>
+#include <CL\cl.h>
 #include <chrono>
 
 class OpenClProgram;

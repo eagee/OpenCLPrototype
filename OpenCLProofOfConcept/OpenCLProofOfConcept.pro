@@ -5,10 +5,6 @@ CONFIG += c++11
 
 include(..\opencl_dep.pri)
 
-INCLUDEPATH += ..\QtOpenCL
-DEPENDPATH += ..\QtOpenCL
-
-
 SOURCES += main.cpp \
     TestScanner.cpp \
     CPUBoundScanOperations.cpp \
@@ -35,20 +31,6 @@ HEADERS += \
     IScanWorker.h \
     GPUScanWorker.h \
     CPUScanWorker.h
-
-win32 {
-    !contains(QMAKE_TARGET.arch, x86_64) {
-        Release: LIBS += -L../lib/Win32/Release -lQtOpenCL
-        Release: PRE_TARGETDEPS += ../lib/Win32/Release/QtOpenCL.lib
-        Debug: LIBS += -L../lib/Win32/Debug -lQtOpenCL
-        Debug: PRE_TARGETDEPS += ../lib/Win32/Debug/QtOpenCL.lib
-    } else {
-        Release: LIBS += -L../lib/x64/Release/ -lQtOpenCL
-        Release: PRE_TARGETDEPS += ../lib/x64/Release/QtOpenCL.lib
-        Debug: LIBS += -L../lib/x64/Debug/ -lQtOpenCL
-        Debug: PRE_TARGETDEPS += ../lib/x64/Debug/QtOpenCL.lib
-    }
-}
 
 #Compiler Flags
 # /GL Whole program optimization

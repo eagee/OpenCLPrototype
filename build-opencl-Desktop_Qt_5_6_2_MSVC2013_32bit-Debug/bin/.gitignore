@@ -1,5 +1,0 @@
-*.lib
-*.pdb
-*.exp
-/QtOpenCL.dll
-/QtOpenCL.ilk

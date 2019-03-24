@@ -1,4 +1,6 @@
 TEMPLATE = subdirs
-SUBDIRS = QtOpenCL OpenCLProofOfConcept
+SUBDIRS = OpenCLProofOfConcept 
 
-OpenCLProofOfConcept.depends = QtOpenCL
+#QtOpenCL 
+
+#OpenCLProofOfConcept.depends = QtOpenCL

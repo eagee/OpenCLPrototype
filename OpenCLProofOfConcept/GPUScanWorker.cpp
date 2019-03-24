@@ -7,7 +7,7 @@
 
 #define BYTES_INTS_IN_MD5_HASH 16
 
-OpenClProgram GPUScanWorker::m_openClProgram("createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
+OpenClProgram GPUScanWorker::m_openClProgram("Q:\\MBAM\\OpenCL\\OpenCLProofOfConcept\\createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
 
 GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/, QString id)
     : IScanWorker(parent), m_id(id)
