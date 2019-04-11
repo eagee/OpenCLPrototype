@@ -178,6 +178,8 @@ OpenClProgram::ErrorState::enum_type OpenClProgram::populateDeviceID()
         clGetDeviceInfo(m_deviceID, CL_DEVICE_ADDRESS_BITS, sizeof(m_addressBits), &m_addressBits, NULL);
         clGetDeviceInfo(m_deviceID, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(m_computeUnits), &m_computeUnits, NULL);
         clGetDeviceInfo(m_deviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(m_maxComputeGroupSize), &m_maxComputeGroupSize, NULL);
+        clGetDeviceInfo(m_deviceID, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(m_availableLocalMemory), &m_availableLocalMemory, NULL);
+        clGetDeviceInfo(m_deviceID, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(m_maxWorkItemSize), &m_maxWorkItemSize, NULL);
     }
     else
     {

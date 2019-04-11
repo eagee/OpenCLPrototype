@@ -1,1 +1,74 @@
-﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.Cpp.Platform.targets(57,5): error MSB8020: The build tools for v141 (Platform Toolset = 'v141') cannot be found. To build using the v141 build tools, please install v141 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
+﻿  Generate moc_predefs.h
+  qclbuffer.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(615): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(616): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(701): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclbuffer.cpp(702): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+  qclcommandqueue.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+  qclcontext.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclcontext.cpp(286): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qclcontext.cpp(290): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qclcontext.cpp(313): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  qcldevice.cpp
+q:\mbam\opencl\qtopencl\qcldevice.cpp(163): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(177): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(179): warning C4267: 'argument': conversion from 'size_t' to 'uint', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(181): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(362): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(424): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(996): warning C4267: 'argument': conversion from 'size_t' to 'uint', possible loss of data
+q:\mbam\opencl\qtopencl\qcldevice.cpp(1020): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  qclevent.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclevent.cpp(488): warning C4311: 'reinterpret_cast': pointer truncation from 'cl_event' to 'long'
+q:\mbam\opencl\qtopencl\qclevent.cpp(488): warning C4302: 'reinterpret_cast': truncation from 'cl_event' to 'long'
+q:\mbam\opencl\qtopencl\qclevent.cpp(505): warning C4311: 'reinterpret_cast': pointer truncation from 'cl_event' to 'long'
+q:\mbam\opencl\qtopencl\qclevent.cpp(505): warning C4302: 'reinterpret_cast': truncation from 'cl_event' to 'long'
+q:\mbam\opencl\qtopencl\qclevent.cpp(513): warning C4311: 'reinterpret_cast': pointer truncation from 'cl_event' to 'long'
+q:\mbam\opencl\qtopencl\qclevent.cpp(513): warning C4302: 'reinterpret_cast': truncation from 'cl_event' to 'long'
+  qclimage.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(224): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(225): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(274): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(275): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(301): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(302): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(351): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(352): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(377): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(378): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(379): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(406): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(407): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(434): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(435): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(465): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(466): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(467): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(495): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(496): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(524): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(525): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(556): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(557): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(592): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(593): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1097): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1098): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1194): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclimage.cpp(1195): warning C4838: conversion from 'int' to 'size_t' requires a narrowing conversion
+  qclimageformat.cpp
+  qclkernel.cpp
+q:\mbam\opencl\qtopencl\qclkernel.h(392): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclkernel.cpp(340): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qclkernel.cpp(344): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+q:\mbam\opencl\qtopencl\qclkernel.cpp(654): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclkernel.cpp(670): warning C4838: conversion from 'qreal' to 'float' requires a narrowing conversion
+q:\mbam\opencl\qtopencl\qclkernel.cpp(767): warning C4267: 'argument': conversion from 'size_t' to 'cl_uint', possible loss of data
+q:\mbam\opencl\qtopencl\qclkernel.cpp(796): warning C4267: 'argument': conversion from 'size_t' to 'cl_uint', possible loss of data
+q:\mbam\opencl\qtopencl\qclkernel.cpp(814): warning C4267: 'argument': conversion from 'size_t' to 'cl_uint', possible loss of data
+  qclmemoryobject.cpp

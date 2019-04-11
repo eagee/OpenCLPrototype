@@ -8,6 +8,9 @@
 #include <QVector>
 #include <CL\cl.h>
 #include <chrono>
+#include <Windows.h>
+#include <winnt.h>
+
 
 class OpenClProgram;
 
@@ -32,7 +35,6 @@ public:
     void run();
 
     void readResultsFromGPU();
-    
 
     virtual ScanWorkerState::enum_type state() const override;
 
@@ -50,6 +52,8 @@ public:
 
     void printTotalTime();
 
+    qint64 GetProfileTimeElapsed() const;
+    void SetProfileDateTime();
 signals:
     void stateChanged(void *scanWorkerPtr);
 
@@ -92,6 +96,10 @@ private:
     std::unique_ptr<char[]> m_hostResultData;
     static OpenClProgram m_openClProgram;
     QString m_id;
+    QDateTime m_profileDateTime;
+    LARGE_INTEGER m_StartingTime;
+    LARGE_INTEGER m_Frequency;
+
 
     bool loadFileData(const QString &filePath);
 

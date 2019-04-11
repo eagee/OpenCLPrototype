@@ -146,6 +146,7 @@ void GPUScanWorker::run()
 void GPUScanWorker::readResultsFromGPU()
 {
     m_state = ScanWorkerState::ReadingResults;
+    
     bool success = m_openClProgram.ReadBuffer(m_commandQueue, m_outputBuffer, 0, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), m_hostResultData.get(), &m_gpuFinishedEvent, false);
     if (!success)
     {
@@ -182,7 +183,7 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
 
     // Create a buffer that will be mapped between host and gpu for read/write operations (this will allow us to build the file
     // contents until the buffer is full on the host, and then we can unmap before the kernel executs, and remap when buffers are reset.
-    success = m_openClProgram.CreateBuffer(m_gpuFileDataBuffer, CL_MEM_READ_ONLY, (m_bytesPerFile * m_maxFiles), nullptr);
+    success = m_openClProgram.CreateBuffer(m_gpuFileDataBuffer, CL_MEM_ALLOC_HOST_PTR, (m_bytesPerFile * m_maxFiles), nullptr);
     if(!success)
     {
         m_state = ScanWorkerState::Error;
@@ -191,7 +192,7 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
     }
     
     // Create a buffer that contains the number of bytes we're processing in our data on the GPU
-    success = m_openClProgram.CreateBuffer(m_dataSizeBuffer, CL_MEM_READ_ONLY, sizeof(size_t), nullptr);
+    success = m_openClProgram.CreateBuffer(m_dataSizeBuffer, CL_MEM_ALLOC_HOST_PTR, sizeof(size_t), nullptr);
     if(!success)
     {
         m_state = ScanWorkerState::Error;
@@ -209,7 +210,7 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
     }
 
     // Create the output buffer that will contain our hashes/checksums
-    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_WRITE_ONLY, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), nullptr);
+    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_ALLOC_HOST_PTR, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), nullptr);
     if(!success)
     {
         qDebug() << Q_FUNC_INFO << " Failed to create cl_mem output buffer";
@@ -266,6 +267,24 @@ void GPUScanWorker::printTotalTime()
 {
     std::chrono::duration<double> elapsed = m_finishTime - m_startTime;
     qDebug() << Q_FUNC_INFO << " GPU Total execution time: " << elapsed.count();
+}
+
+qint64 GPUScanWorker::GetProfileTimeElapsed() const
+{
+    LARGE_INTEGER ElapsedMicroseconds;
+    LARGE_INTEGER m_WossnameWossnameWossname;
+    QueryPerformanceCounter(&m_WossnameWossnameWossname);
+    ElapsedMicroseconds.QuadPart = m_WossnameWossnameWossname.QuadPart - m_StartingTime.QuadPart;
+    ElapsedMicroseconds.QuadPart *= 1000000;
+    ElapsedMicroseconds.QuadPart /= m_Frequency.QuadPart;
+    return (ElapsedMicroseconds.QuadPart * 100);
+}
+
+void GPUScanWorker::SetProfileDateTime()
+{
+    QueryPerformanceFrequency(&m_Frequency);
+    QueryPerformanceCounter(&m_StartingTime);
+    
 }
 
 void GPUScanWorker::executeKernelOperation()
@@ -331,7 +350,7 @@ void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, 
 {
     Q_UNUSED(event);
     Q_UNUSED(cmd_exec_status);
-    
+
     //qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
     GPUScanWorker *worker = static_cast<GPUScanWorker*>(user_data);
 
@@ -340,10 +359,12 @@ void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, 
     if (worker->state() == ScanWorkerState::Scanning)
     {
         // We have to read the results out of our scan before we can process them.
+        worker->SetProfileDateTime();
         worker->readResultsFromGPU();
     }
     else if (worker->state() == ScanWorkerState::ReadingResults)
     {
+        qDebug() << "Worker: " << worker->id() << " Read time: " << worker->GetProfileTimeElapsed();
         // Once we've read out our results, we can set our state to complete.
         worker->setState(ScanWorkerState::Complete);
     }

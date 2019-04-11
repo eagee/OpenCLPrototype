@@ -7,9 +7,10 @@
 #include "GPUScanWorker.h"
 #include "CPUScanWorker.h"
 
-const int BYTES_PER_FILE = 8192;
-const int PROGRAM_POOL_SIZE = 64;
-const int MAX_FILES_PER_PROGRAM = 256;
+const int BYTES_PER_FILE = 4096;
+const int PROGRAM_POOL_SIZE = 16;
+const int MAX_GPU_IN_BOTH = 16;
+const int MAX_FILES_PER_PROGRAM = 10000;
 
 ScanWorkManager::ScanWorkManager(QObject *parent, bool useGPU, bool useBoth): QObject(parent), 
 m_scanWorkersFinished(0), m_useGPU(useGPU), m_useBoth(useBoth)
@@ -50,7 +51,6 @@ void ScanWorkManager::InitWorkers()
 {
     m_fileIndex.reset(new QAtomicInt(0));
 
-    const int MAX_GPU_IN_BOTH = 2;
     int gpuWorkersCreated = 0;
 
     QDir testDir("C:\\TestFiles");

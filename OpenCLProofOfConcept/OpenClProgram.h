@@ -82,6 +82,8 @@ private:
     cl_uint m_addressBits;
     cl_uint m_computeUnits;
     size_t m_maxComputeGroupSize;
+    size_t m_maxWorkItemSize;
+    cl_ulong m_availableLocalMemory;
 
     // Populate our DeviceID via OpenCL API
     ErrorState::enum_type populateDeviceID();
