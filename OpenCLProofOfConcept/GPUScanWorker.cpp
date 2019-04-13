@@ -6,8 +6,11 @@
 #include <chrono>
 
 #define BYTES_INTS_IN_MD5_HASH 16
+#define DDS_HASHES_TO_GENERATE 1024 * 1024 * 2
+#define BYTES_INT_DDS_HASH DDS_HASHES_TO_GENERATE * 8
 
-OpenClProgram GPUScanWorker::m_openClProgram("Q:\\MBAM\\OpenCL\\OpenCLProofOfConcept\\createMd5.cl", "createMd5", OpenClProgram::DeviceType::GPU);
+
+OpenClProgram GPUScanWorker::m_openClProgram("Q:\\MBAM\\OpenCL\\OpenCLProofOfConcept\\calculateDDS.cl", "calculateDDS", OpenClProgram::DeviceType::GPU);
 
 GPUScanWorker::GPUScanWorker(QObject *parent /*= nullptr*/, QString id)
     : IScanWorker(parent), m_id(id)
@@ -33,22 +36,28 @@ bool GPUScanWorker::loadFileData(const QString &filePath)
         return false;
     }
 
+    qDebug() << Q_FUNC_INFO << " reading data";
     QByteArray clFileBufferData = file.read(m_bytesPerFile);
-    unsigned int dataOffset = (m_filesToScan.size() * m_bytesPerFile);
-    
+    //unsigned int dataOffset = (m_filesToScan.size() * m_bytesPerFile);
+    unsigned int dataOffset = 0; // We don't need dataOffset anymore since we've got on file per thread with DDS
     m_state = ScanWorkerState::Copying;
 
     // Use if we're mapping and unmapping; the problem with this approach is we loose the benefits of storing all the RAM on the GPU
     // m_mappedHostFileData = (char*)m_openClProgram.MapBuffer(m_gpuFileDataBuffer, CL_MAP_WRITE, (m_bytesPerFile * m_maxFiles));
     // memcpy(&m_mappedHostFileData[dataOffset], clFileBufferData.data(), m_bytesPerFile);
     // m_openClProgram.UnMapBuffer(m_gpuFileDataBuffer, m_mappedHostFileData);
-    
-    if (!m_openClProgram.WriteBuffer(m_commandQueue, m_gpuFileDataBuffer, dataOffset, m_bytesPerFile, clFileBufferData.data(), &m_gpuFinishedEvent, false)) //&m_gpuFinishedEvent
+
+    qDebug() << Q_FUNC_INFO << " appending to files to scan";
+    m_filesToScan.append(filePath);
+
+    qDebug() << Q_FUNC_INFO << " writing buffer";
+    if (!m_openClProgram.WriteBuffer(m_commandQueue, m_gpuFileDataBuffer, dataOffset, m_bytesPerFile, clFileBufferData.data(), &m_gpuFinishedEvent, false))
     {
         qDebug() << Q_FUNC_INFO << "Unable to write file buffer to GPU: " << filePath;
         return false;
     }
     
+    qDebug() << Q_FUNC_INFO << " setting callback";
     // Set up our event callback so that we're notified when the kernel is done (and can put ourselves back into the worker queue)
     cl_int errcode = clSetEventCallback(m_gpuFinishedEvent, CL_COMPLETE, &GPUScanWorker::gpuFinishedCallback, this);
     if (errcode != CL_SUCCESS)
@@ -57,7 +66,7 @@ bool GPUScanWorker::loadFileData(const QString &filePath)
         qDebug() << Q_FUNC_INFO << " Failed to set up event with error: " << OpenClProgram::errorName(errcode);
     }
 
-    m_filesToScan.append(filePath);
+    //clFlush(m_commandQueue);
 
     // WE were using this when we tried file mapping, but we preferred to keep memory on the GPU.
     ///if (areBuffersFull() == true)
@@ -129,14 +138,17 @@ void GPUScanWorker::run()
 {
     if(m_nextOperation.Type == OperationType::Load)
     {
+        qDebug() << Q_FUNC_INFO << " Loading file data...";
         loadFileData(m_nextOperation.FilePath);
     }
     else if (m_nextOperation.Type == OperationType::ExecuteScan)
     {
+        qDebug() << Q_FUNC_INFO << " Executing Kernel...";
         executeKernelOperation();
     }
     else if (m_nextOperation.Type == OperationType::ReadResults)
     {
+        qDebug() << Q_FUNC_INFO << " Processing results...";
         processResults();
         resetFileBuffers();
         setState(ScanWorkerState::Available);
@@ -147,7 +159,7 @@ void GPUScanWorker::readResultsFromGPU()
 {
     m_state = ScanWorkerState::ReadingResults;
     
-    bool success = m_openClProgram.ReadBuffer(m_commandQueue, m_outputBuffer, 0, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), m_hostResultData.get(), &m_gpuFinishedEvent, false);
+    bool success = m_openClProgram.ReadBuffer(m_commandQueue, m_outputBuffer, 0, (BYTES_INT_DDS_HASH * m_maxFiles), m_hostResultData.get(), &m_gpuFinishedEvent, false);
     if (!success)
     {
         setState(ScanWorkerState::Error);
@@ -159,6 +171,8 @@ void GPUScanWorker::readResultsFromGPU()
         m_state = ScanWorkerState::Error;
         qDebug() << Q_FUNC_INFO << " Failed to set up event with error: " << OpenClProgram::errorName(errcode);
     }
+
+    //clFlush(m_commandQueue);
 }
 
 ScanWorkerState::enum_type GPUScanWorker::state() const
@@ -210,14 +224,14 @@ bool GPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
     }
 
     // Create the output buffer that will contain our hashes/checksums
-    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_ALLOC_HOST_PTR, (BYTES_INTS_IN_MD5_HASH * m_maxFiles), nullptr);
+    success = m_openClProgram.CreateBuffer(m_outputBuffer, CL_MEM_ALLOC_HOST_PTR, (BYTES_INT_DDS_HASH * m_maxFiles), nullptr);
     if(!success)
     {
         qDebug() << Q_FUNC_INFO << " Failed to create cl_mem output buffer";
         return false;
     }
 
-    m_hostResultData.reset(new char[m_maxFiles * BYTES_INTS_IN_MD5_HASH]);
+    m_hostResultData.reset(new char[m_maxFiles * BYTES_INT_DDS_HASH]);
 
     resetFileBuffers();
 
@@ -266,7 +280,7 @@ void GPUScanWorker::processResults()
 void GPUScanWorker::printTotalTime()
 {
     std::chrono::duration<double> elapsed = m_finishTime - m_startTime;
-    qDebug() << Q_FUNC_INFO << " GPU Total execution time: " << elapsed.count();
+    qDebug() << Q_FUNC_INFO << " GPU Total execution time: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
 }
 
 qint64 GPUScanWorker::GetProfileTimeElapsed() const
@@ -321,9 +335,9 @@ void GPUScanWorker::executeKernelOperation()
         return;
     }
 
-    // TODO: Set our work item and group sizes appropriately for our 5 compute node GPU!
-    const size_t workItemSize = m_maxFiles;
-    const size_t workGroupSize = m_maxFiles;
+    // TODO: Work item is set to the maximum # of checksums to run on the GPU
+    const size_t workItemSize = 1024 * 1024 * 2;//DDS_HASHES_TO_GENERATE;
+    const size_t workGroupSize = 1024;
 
     // Now if we kick off our kernel operation it'll process all of the files we've enqueued and send us an event when it's
     // done that we can use to read out the contents of the output buffer when it's done.
@@ -344,6 +358,8 @@ void GPUScanWorker::executeKernelOperation()
 
     //setState(ScanWorkerState::Scanning);
     m_state = ScanWorkerState::Scanning;
+
+    clFlush(m_commandQueue);
 }
 
 void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, void *user_data)
@@ -351,10 +367,10 @@ void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, 
     Q_UNUSED(event);
     Q_UNUSED(cmd_exec_status);
 
-    //qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
+    qDebug() << Q_FUNC_INFO << " Event received command execute status: " << OpenClProgram::errorName(cmd_exec_status);
     GPUScanWorker *worker = static_cast<GPUScanWorker*>(user_data);
 
-    //qDebug() << Q_FUNC_INFO << " Worker state: " << ScanWorkerState::ToString(worker->state());
+    qDebug() << Q_FUNC_INFO << " Worker state: " << ScanWorkerState::ToString(worker->state());
     
     if (worker->state() == ScanWorkerState::Scanning)
     {
@@ -373,10 +389,12 @@ void GPUScanWorker::gpuFinishedCallback(cl_event event, cl_int cmd_exec_status, 
         // Once we're done copying we can see if we have more files to process or not.
         if (worker->areBuffersFull() == true)
         {
+            qDebug() << Q_FUNC_INFO << " Buffers are full, back to ready!";
             worker->setState(ScanWorkerState::Ready);
         }
         else
         {
+            qDebug() << Q_FUNC_INFO << " Buffers aren't full, back to available!";
             worker->setState(ScanWorkerState::Available);
         }
     }

@@ -57,6 +57,9 @@ public:
 
     Q_INVOKABLE void UnMapBuffer(cl_command_queue &commandQueue, cl_mem &buffer, void *mappedPointer);
 
+    /// Note: workItemCount needs to be a multiple of computeGroupSize, and for NVidia GPUs we want to work with compute group sizes of 
+    ///       768/1024/1536 to maximally employ a compute node. 
+    /// Note: CL_DEVICE_MAX_WORK_GROUP_SIZE and CL_KERNEL_WORK_GROUP_SIZE can help us determine the ideal work group size for the hardware we're using.
     Q_INVOKABLE int ExecuteKernel(cl_command_queue &commandQueue, const size_t workItemCount, const size_t computeGroupSize, cl_event *eventCallback);
 
     Q_INVOKABLE QString programFileName() const;

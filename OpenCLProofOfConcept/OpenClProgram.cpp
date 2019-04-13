@@ -125,7 +125,7 @@ int OpenClProgram::ExecuteKernel(cl_command_queue &commandQueue, const size_t wo
 {
     int errorCode = 0;
     ///using NULL instead of &computeGroupSize* allows openCL to determine the optimal work group size.
-    errorCode = clEnqueueNDRangeKernel(commandQueue, m_kernel, 1, NULL, &workItemCount, NULL, 0, NULL, eventCallback);
+    errorCode = clEnqueueNDRangeKernel(commandQueue, m_kernel, 1, NULL, &workItemCount, &computeGroupSize, 0, NULL, eventCallback);
     if (errorCode < 0) {
         qDebug() << Q_FUNC_INFO << " Failed to enqueue kernel with error code: " << errorName(errorCode);
         return false;

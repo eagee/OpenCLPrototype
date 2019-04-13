@@ -7,10 +7,15 @@
 #include "GPUScanWorker.h"
 #include "CPUScanWorker.h"
 
-const int BYTES_PER_FILE = 4096;
-const int PROGRAM_POOL_SIZE = 16;
-const int MAX_GPU_IN_BOTH = 16;
-const int MAX_FILES_PER_PROGRAM = 10000;
+
+const int BLOCK_SIZE = 2048;
+
+const int BYTES_PER_FILE = 1048576 * 2;
+const int TOTAL_CHECKSUMS = BYTES_PER_FILE - 8;
+
+const int PROGRAM_POOL_SIZE = 8;
+const int MAX_GPU_IN_BOTH = 5;
+const int MAX_FILES_PER_PROGRAM = 1;
 
 ScanWorkManager::ScanWorkManager(QObject *parent, bool useGPU, bool useBoth): QObject(parent), 
 m_scanWorkersFinished(0), m_useGPU(useGPU), m_useBoth(useBoth)
@@ -130,7 +135,7 @@ void ScanWorkManager::doWork()
 void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
 {
     GPUScanWorker *scanWorker = static_cast<GPUScanWorker*>(scanWorkerPtr);
-    //qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
+    qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << "State changed for scan worker to: " << ScanWorkerState::ToString(scanWorker->state());
     
     // If the state of the worker is Available and there are more files to scan we'll queue the next file
     if (scanWorker->state() == ScanWorkerState::Available)
@@ -138,6 +143,7 @@ void ScanWorkManager::OnStateChanged(void *scanWorkerPtr)
         const QFileInfo* nextFile = GetNextFile();
         if(nextFile != nullptr)
         { 
+            qDebug() << Q_FUNC_INFO << QString("%1").arg(QDateTime::currentDateTime().currentMSecsSinceEpoch()) + "ID: " << scanWorker->id() << " Next file: " << nextFile->absoluteFilePath();
             scanWorker->queueLoadOperation(nextFile->filePath());
             QThreadPool::globalInstance()->start(scanWorker);
         }

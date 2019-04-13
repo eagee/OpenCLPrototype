@@ -95,22 +95,20 @@ Rectangle {
             Layout.bottomMargin: testScannerModel.running ? 0 : 20
             Text {
                 id: labelCurrentItem
-                x: 22
-                y: 247
-                width: 305
-                height: 14
+                Layout.preferredWidth: 400
+                Layout.maximumWidth: 400
+                elide: Text.ElideRight
                 text: qsTr("Current Item: ") + testScannerModel.currentScanObject
                 font.pixelSize: 12
                 visible: testScannerModel.running
+            }
+
+            Item {
                 Layout.fillWidth: true
             }
 
             Text {
                 id: labelItemsScanned
-                x: 22
-                y: 247
-                width: 305
-                height: 14
                 text: qsTr("Items Scanned: ") + testScannerModel.itemsScanned
                 font.pixelSize: 12
                 Layout.fillWidth: true
@@ -118,10 +116,6 @@ Rectangle {
 
             Text {
                 id: labelElapsedTime
-                x: 22
-                y: 247
-                width: 305
-                height: 14
                 text: qsTr("Elapsed Time: ") + testScannerModel.timeElapsed
                 font.pixelSize: 12
                 horizontalAlignment: Qt.AlignRight

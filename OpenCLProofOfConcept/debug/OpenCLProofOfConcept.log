@@ -1,3 +1,2 @@
-﻿  OpenClProgram.cpp
-q:\mbam\opencl\openclproofofconcept\openclprogram.cpp(124): warning C4100: 'computeGroupSize': unreferenced formal parameter
+﻿  GPUScanWorker.cpp
   OpenCLProofOfConcept.vcxproj -> Q:\MBAM\OpenCL\OpenCLProofOfConcept\debug\OpenCLProofOfConcept.exe
