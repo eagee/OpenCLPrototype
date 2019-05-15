@@ -9,29 +9,44 @@
 
 class OpenClProgram;
 
+// Types we'll use for calculating the md5
+#define BLOCK_SIZE 2048
+#define TOTAL_CHECKSUMS ((1024*1024*2) - 8) //1048568 
+
+typedef struct
+{
+    ulong values[TOTAL_CHECKSUMS];
+} DdsChecksums;
+
+
+/// Implements QRunnable to right highly parallel DDS checksum operations based on the file buffer/data specified in the constructor
 class CPUKernelRunnable : public QObject, public QRunnable
 {
     Q_OBJECT
 
 public:
 
-    CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, unsigned int bytesPerFile);
-
-    void runWithoutThreadPool();
+    CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, int checksumIndex, DdsChecksums &checksums, unsigned int bytesPerFile);
 
 protected:
     void run();
 
 signals:
 
-    void ProcessingComplete(int fileIndex, QString md5);
+    void ProcessingComplete(int fileIndex, int checksumIndex, QString dds);
 
 private:
     QByteArray &m_fileDataBuffer;
     int m_fileIndex;
+    int m_checksumIndex;
     unsigned int m_bytesPerFile;
+    DdsChecksums &m_checksums;
 
     void generateMd5();
+    void generateDDSSig();
+
+    // same method as below, but used for QRunnable implementation (which should garner far better performance)
+    ulong createDdsChecksum64(const ulong *buffer);
 };
 
 
@@ -85,7 +100,7 @@ public slots:
         setState(ScanWorkerState::Complete);
     }
 
-    void OnProcessingComplete(int fileIndex, QString md5);
+    void OnProcessingComplete(int fileIndex, int checksumIndex, QString md5);
 
 signals:
     void stateChanged(void *scanWorkerPtr);
@@ -103,9 +118,13 @@ private:
     static OpenClProgram m_openClProgram;
     int m_pendingWorkItems;
     QString m_id;
+    DdsChecksums m_checksums;
+    int m_checksumsToRun;
 
     bool loadFileData(const QString &filePath);
 
     void executeKernelOperation();
+
+    ulong createDdsChecksum64(const ulong *buffer);
 };
 //Q_DECLARE_METATYPE(GPUScanWorker, "GPUScanWorker")

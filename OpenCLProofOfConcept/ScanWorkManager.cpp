@@ -8,10 +8,10 @@
 #include "CPUScanWorker.h"
 
 
-const int BLOCK_SIZE = 2048;
+const int BLOCK_SIZEO = 2048;
 
 const int BYTES_PER_FILE = 1048576 * 2;
-const int TOTAL_CHECKSUMS = BYTES_PER_FILE - 8;
+const int TOTAL_CHECKSUMSO = ((1024 * 1024 * 2) - 8); //1048568
 
 const int PROGRAM_POOL_SIZE = 8;
 const int MAX_GPU_IN_BOTH = 5;

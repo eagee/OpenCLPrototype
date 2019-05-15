@@ -118,7 +118,8 @@ void CPUScanWorker::run()
     {
         processResults();
         resetFileBuffers();
-        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateAvailabile);
+        // setState(ScanWorkerState::Available);
+        // QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateAvailabile);
     }
 }
 
@@ -129,8 +130,11 @@ ScanWorkerState::enum_type CPUScanWorker::state() const
 
 void CPUScanWorker::setState(ScanWorkerState::enum_type state)
 {
-    m_state = state;
-    emit stateChanged(static_cast<void*>(this));
+    if(m_state != state)
+    {
+        m_state = state;
+        emit stateChanged(static_cast<void*>(this));
+    }
 }
 
 bool CPUScanWorker::createFileBuffers(size_t bytesPerFile, int numberOfFiles)
@@ -155,7 +159,7 @@ bool CPUScanWorker::areBuffersFull()
 void CPUScanWorker::resetFileBuffers()
 {
     m_filesToScan.clear();
-    m_state = ScanWorkerState::Available;
+    setState(ScanWorkerState::Available);
 }
 
 int CPUScanWorker::queuedFileCount() const
@@ -193,49 +197,67 @@ void CPUScanWorker::executeKernelOperation()
     auto start = std::chrono::high_resolution_clock::now();
     for (int index = 0; index < m_filesToScan.count(); index++)
     {
-        // Kick each file we want to process in our image off in a thread pool
-        //CPUKernelRunnable *work = new CPUKernelRunnable(m_fileDataBuffer, index, m_bytesPerFile);
-        //QObject::connect(work, &CPUKernelRunnable::ProcessingComplete, this, &CPUScanWorker::OnProcessingComplete);
-        //QThreadPool::globalInstance()->start(work);
-        //work->runWithoutThreadPool();
+        /// Queue a QRunnable for processing in the threadpool for each checksum we want to perform.
+        /// As each QRunnable emits ProcessingComplete(...) we'll count the number of checksums
+        /// that have been run, and when we reach TOTAL_CHECKSUMS - 1, we'll emit ProcessingComplete
+        /// from this object indicating that the file has been scanned.
+        m_checksumsToRun = TOTAL_CHECKSUMS - 1;
+        for (int checkIndex = 0; checkIndex < TOTAL_CHECKSUMS; checkIndex++)
+        {
+            // Try to queue each hash in a threadpool
+            //CPUKernelRunnable *work = new CPUKernelRunnable(m_fileDataBuffer, index, checkIndex, m_checksums, m_bytesPerFile);
+            //QObject::connect(work, &CPUKernelRunnable::ProcessingComplete, this, &CPUScanWorker::OnProcessingComplete);
+            //QThreadPool::globalInstance()->start(work);
 
-        unsigned int fileOffset = index * m_bytesPerFile;
-        QCryptographicHash newHash(QCryptographicHash::Md5);
-        newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
-        QByteArray result = newHash.result();
-        OnProcessingComplete(index, result.toHex());
+            // Forget doing that, let's just calculate that hash right here...
+            unsigned int fileOffset = (index * m_bytesPerFile) + checkIndex;
+            const ulong * data = (const ulong*)m_fileDataBuffer.constData();
+            m_checksums.values[checkIndex] = createDdsChecksum64(data);
+        }
+        OnProcessingComplete(index, TOTAL_CHECKSUMS, "");
+        
+        //QCryptographicHash newHash(QCryptographicHash::Md5);
+        //newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
+        //QByteArray result = newHash.result();
+
+        //OnProcessingComplete(index, "");
     }
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    qDebug() << Q_FUNC_INFO << " CPU Total execution time: " << elapsed.count();
+    //qDebug() << Q_FUNC_INFO << " CPU Total execution time: " << elapsed.count();
+    qDebug() << Q_FUNC_INFO << " CPU Total execution time: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
 }
 
-void CPUScanWorker::OnProcessingComplete(int fileIndex, QString md5)
+void CPUScanWorker::OnProcessingComplete(int fileIndex, int checksumIndex, QString md5)
 {
-    m_hostResultData[fileIndex] = md5;
-    m_pendingWorkItems++;
-    if (m_pendingWorkItems >= m_filesToScan.count())
+    //m_checksumsToRun--;
+    //qDebug() << Q_FUNC_INFO << " remaining: " << m_checksumsToRun;
+    //if (m_checksumsToRun <= 0)
     {
-        QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
+        //m_hostResultData[fileIndex] = md5;
+        m_pendingWorkItems++;
+        if (m_pendingWorkItems >= m_filesToScan.count())
+        {
+            QTimer::singleShot(0, this, &CPUScanWorker::OnSetStateComplete);
+        }
     }
 }
 
-CPUKernelRunnable::CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, unsigned int bytesPerFile) :
+CPUKernelRunnable::CPUKernelRunnable(QByteArray &fileDataBuffer, int fileIndex, int checksumIndex, DdsChecksums &checksums, unsigned int bytesPerFile) :
     m_fileDataBuffer(fileDataBuffer),
     m_fileIndex(fileIndex),
-    m_bytesPerFile(bytesPerFile)
+    m_bytesPerFile(bytesPerFile),
+    m_checksums(checksums),
+    m_checksumIndex(checksumIndex)
 {
 
 }
 
-void CPUKernelRunnable::runWithoutThreadPool()
-{
-    generateMd5();
-}
 
 void CPUKernelRunnable::run()
 {
-    generateMd5();
+    //generateMd5();
+    generateDDSSig();
 }
 
 void CPUKernelRunnable::generateMd5()
@@ -245,5 +267,48 @@ void CPUKernelRunnable::generateMd5()
     newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
     QByteArray result = newHash.result();
     //qDebug() << Q_FUNC_INFO << result.toHex();
-    emit ProcessingComplete(m_fileIndex, result.toHex());
+    emit ProcessingComplete(m_fileIndex, 0, result.toHex());
+}
+
+
+
+void CPUKernelRunnable::generateDDSSig()
+{
+    unsigned int fileOffset = (m_fileIndex * m_bytesPerFile) + m_checksumIndex;
+    const ulong * data = (const ulong*)m_fileDataBuffer.constData();
+    m_checksums.values[m_checksumIndex] = createDdsChecksum64(data);
+    emit ProcessingComplete(m_fileIndex, m_checksumIndex, "");
+
+    /// Back when we used this for md5 hashes, it looked a little like this :)
+    //QCryptographicHash newHash(QCryptographicHash::Md5);
+    //newHash.addData(&m_fileDataBuffer.data()[fileOffset], m_bytesPerFile);
+    //QByteArray result = newHash.result();
+    ////qDebug() << Q_FUNC_INFO << result.toHex();
+    //emit ProcessingComplete(m_fileIndex, result.toHex());
+}
+
+ulong CPUKernelRunnable::createDdsChecksum64(const ulong *buffer)
+{
+    ulong sum = 0;
+
+    int len = BLOCK_SIZE / sizeof(ulong);
+    for (int i = 0; i < len; i++)
+    {
+        sum += buffer[i];
+    }
+
+    return sum;
+}
+
+ulong CPUScanWorker::createDdsChecksum64(const ulong *buffer)
+{
+    ulong sum = 0;
+
+    int len = BLOCK_SIZE / sizeof(ulong);
+    for (int i = 0; i < len; i++)
+    {
+        sum += buffer[i];
+    }
+
+    return sum;
 }
